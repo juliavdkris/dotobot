@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+
+  dotobot:
+    build: .
+    restart: always
+    volumes:
+      - ./src:/home/worker/app
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_INVITE=${DISCORD_INVITE}
+      - PREFIX=${PREFIX}
