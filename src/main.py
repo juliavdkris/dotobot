@@ -46,42 +46,44 @@ async def update(ctx):
 	updateable_cogs = ['Homicide', 'Replies', 'Quotes']
 	for cogname in updateable_cogs:
 		if cogname in bot.cogs:
-			await bot.cogs[cogname].update() 
+			await bot.cogs[cogname].update()
+	load_config() 
 
 @bot.command()
-async def stop(ctx, *, args):
-	if (ext:= 'packages.' + args) in extensions:
-		bot.unload_extension(ext)
-		deactivated_extensions.append(ext)
-		extensions.remove(ext)
-		await ctx.send(f'Module: `{ext}` has been deactivated')
-		save_config()
-	else:
-		await ctx.send('Module is not present in the active modules')
+async def stop(ctx, * args):
+	for arg in args:
+		if (ext:= 'packages.' + arg) in extensions:
+			bot.unload_extension(ext)
+			deactivated_extensions.append(ext)
+			extensions.remove(ext)
+			await ctx.send(f'Module `{ext}` has been deactivated')
+		else:
+			await ctx.send(f'Module `{ext}` not present in the active modules')
+	save_config()
 
 @bot.command()
-async def start(ctx, *, args):
-	if (ext:= 'packages.' + args) in deactivated_extensions:
-		bot.load_extension(ext)
-		extensions.append(ext)
-		deactivated_extensions.remove(ext)
-		await ctx.send(f'Module `{ext}` has been activated')
-		save_config()
-	else:
-		await ctx.send('Module is already active or does not exist')
+async def start(ctx, * args):
+	for arg in args:
+		if (ext:= 'packages.' + arg) in deactivated_extensions:
+			bot.load_extension(ext)
+			extensions.append(ext)
+			deactivated_extensions.remove(ext)
+			await ctx.send(f'Module `{ext}` has been activated')
+		else:
+			await ctx.send(f'Module `{ext}` already active or does not exist')
+	save_config()
 
 @bot.command()
-async def restart(ctx, *, args):
-	if args == 'all':
+async def restart(ctx, * args):
+	if args[0] == 'all':
 		for extension in extensions:
 			bot.reload_extension(extension)
 		await ctx.send('All modules have been reloaded')
-	elif (ext:= 'packages.' + args) in extensions:
-		bot.reload_extension(ext)
-		await ctx.send(f'Module: `{ext}` has been reloaded')
 	else:
-		newline = '\n'
-		await ctx.send(f'Unrecognised modules: the following are supported:\n```{newline.join(extensions)}```')  # something something no backslahes in an f string equation.
+		for arg in args:
+			if (ext:= 'packages.' + arg) in extensions:
+				bot.reload_extension(ext)
+				await ctx.send(f'Module: `{ext}` has been reloaded')
 
 # -------------------------> Helper functions
 
