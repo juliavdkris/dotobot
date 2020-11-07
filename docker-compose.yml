@@ -1,8 +1,9 @@
-version: "3.8"
+version: "3"
 
 services:
 
   dotobot:
+    image: ghcr.io/samvdkris/dotobot
     build: .
     restart: always
     volumes:

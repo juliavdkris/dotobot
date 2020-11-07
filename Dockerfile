@@ -9,7 +9,7 @@ USER worker
 WORKDIR /home/worker
 
 COPY --chown=worker:worker requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN pip install --user -r requirements.txt --no-warn-script-location
 
 
 COPY --chown=worker:worker src/ app/
