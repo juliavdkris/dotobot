@@ -8,7 +8,8 @@ services:
     restart: always
     volumes:
       - ./src:/home/worker/app
+      - ./storage:/home/worker/storage
     environment:
-      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
       - PREFIX=${PREFIX}
