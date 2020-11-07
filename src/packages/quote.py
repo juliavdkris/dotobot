@@ -14,6 +14,7 @@ import os.path
 
 # -------------------------> Main
 
+
 def setup(bot):
 	if not os.path.isfile('storage/quotes_config.json'):
 		log.critical(f'FILE NOT FOUND, could not find the quotes_config file, setting up a template')
@@ -26,8 +27,10 @@ def setup(bot):
 	log.info('Quotes module has been activated')
 	bot.add_cog(Quotes(bot))
 
+
 def teardown(bot):
 	log.info('Quotes module has been deactivated')
+
 
 class Quotes(commands.Cog):
 	def __init__(self, bot):
@@ -74,8 +77,12 @@ class Quotes(commands.Cog):
 				raise Exception('key was not present in the dictionary')
 		except:
 			key_list = list(quotes[guild_key].keys())
-			key_list.pop(key_list.index('next_id'))  # weird hack and should be solved differently, conflicts with the choice wherein choice would pick this option.
-			quote_key = choice(key_list)  # possible solution is to hide all the quotes behind a 'quote' key but I think the conflict won't arise too much
+			key_list.pop(
+			    key_list.index('next_id')
+			)  # weird hack and should be solved differently, conflicts with the choice wherein choice would pick this option.
+			quote_key = choice(
+			    key_list
+			)  # possible solution is to hide all the quotes behind a 'quote' key but I think the conflict won't arise too much
 		quote = quotes[guild_key][quote_key]  # and otherwise we're gonna have to rewrite /shrug
 		await ctx.send(f'> {quote_key}: \"{quote["quote"]}\" - {quote["author"]}')
 		return
@@ -89,7 +96,7 @@ class Quotes(commands.Cog):
 		return quotes
 
 	async def mass_quote(self, ctx, quotes):
-		quotes = sorted(quotes, key = lambda i: i['id'])
+		quotes = sorted(quotes, key=lambda i: i['id'])
 		quote_brackets, qmsg = '```', '```'
 		if len(quotes) == 0:
 			await ctx.send('No entries match the search')
@@ -104,7 +111,7 @@ class Quotes(commands.Cog):
 		self.config = self.load_config()
 		log.info(f'Quotes ran an update')
 
-	@commands.group(aliases = ['quote'])
+	@commands.group(aliases=['quote'])
 	async def q(self, ctx):
 		if ctx.invoked_subcommand is None:
 			log.info(f'QUOTE User {ctx.author.name} has passed an invalid quote subcommand: {ctx.message.content}')
@@ -113,21 +120,27 @@ class Quotes(commands.Cog):
 			log.info(f'QUOTE User {ctx.author.name} has called command:{ctx.invoked_subcommand}')
 
 	@q.command()
-	async def add(self, ctx, *, args = None):
+	async def add(self, ctx, *, args=None):
 		quotes, guild_key = self.load_quotes(), str(ctx.guild.id)
 		if guild_key not in quotes:  # custom check since it should add a quote
 			log.info(f'QUOTE Database created for {ctx.guild.name}')
 			quotes[guild_key] = {'next_id': 0}
 		quote, author = self.split_quote(args)
-	
-		quotes[guild_key][str(quotes[guild_key]['next_id'])] = {'quote': quote, 'author': author, 'remove_votes': [], 'remove_vetos': [], 'id': quotes[guild_key]['next_id']}
+
+		quotes[guild_key][str(quotes[guild_key]['next_id'])] = {
+		    'quote': quote,
+		    'author': author,
+		    'remove_votes': [],
+		    'remove_vetos': [],
+		    'id': quotes[guild_key]['next_id']
+		}
 		log.info(f"QUOTE has been added; {quotes[guild_key]['next_id']}: \"{quote}\" - {author}")
 		await ctx.send(f'Quote added. Assigned ID: {quotes[guild_key]["next_id"]}')
 		quotes[guild_key]['next_id'] += 1
 		self.store_quotes(quotes)
 
-	@q.command(aliases = ['del', 'delete'])
-	async def remove(self, ctx, *, args = None):
+	@q.command(aliases=['del', 'delete'])
+	async def remove(self, ctx, *, args=None):
 		quote_key, quotes, guild_key = str(int(args)), self.load_quotes(), str(ctx.guild.id)
 		if quote_key in quotes[guild_key]:
 			quote = quotes[guild_key].pop(quote_key)
@@ -138,8 +151,8 @@ class Quotes(commands.Cog):
 			await ctx.send(f'Could not find {quote_key} in the database')
 		self.store_quotes(quotes)
 
-	@q.command(aliases = ['change'])
-	async def edit(self, ctx, * args):  # the arg parser can do some weird stuff with quotation marks
+	@q.command(aliases=['change'])
+	async def edit(self, ctx, *args):  # the arg parser can do some weird stuff with quotation marks
 		quotes, guild_key = self.load_quotes(), str(ctx.guild.id)
 		if not self.data_base_present(quotes, guild_key) or len(args) == 0:
 			return
@@ -148,7 +161,7 @@ class Quotes(commands.Cog):
 		index = ''
 		try:
 			index = str(int(args[0]))  # check for impostor aka strings
-		except:		
+		except:
 			log.warning(f'QUOTE edit could not find a valid quote_key. Key: {args[0]}')  # we are returning from here.
 			await ctx.send('The requested quote key could not be read')
 			return
@@ -164,12 +177,12 @@ class Quotes(commands.Cog):
 			quotes[guild_key][index]['quote'], quotes[guild_key][index]['author'] = quote, author
 
 		await ctx.send(f'> {index}: \"{quotes[guild_key][index]["quote"]}\" - {quotes[guild_key][index]["author"]}')
-		self.store_quotes(quotes)		
-		
+		self.store_quotes(quotes)
+
 	@q.command()
 	async def search(self, ctx, *, args):
 		quotes, found_quotes = await self.load_guild_quotes(ctx), []
-		
+
 		log.info(f'QUOTE search with following parameters: {args}')
 		search_request = args.split()[0].lower() if args.split()[0].lower() in ['quote', 'author'] else None
 		if search_request:
@@ -192,7 +205,7 @@ class Quotes(commands.Cog):
 		await self.mass_quote(ctx, list(quotes.values()))
 
 	@q.command()
-	async def last(self, ctx, arg = 0):
+	async def last(self, ctx, arg=0):
 		quotes = await self.load_guild_quotes(ctx)
 		quotes = list(quotes.values())
 		if not arg:
@@ -206,18 +219,20 @@ class Quotes(commands.Cog):
 		await self.mass_quote(ctx, quotes[-arg:])
 
 	@q.command()
-	async def stats(self, ctx, arg = None):
+	async def stats(self, ctx, arg=None):
 		quotes = await self.load_guild_quotes(ctx)
 		try:
 			arg = str(int(arg))
 			quote = quotes[arg]
-			await ctx.send(f"```Quote: \"{quote['quote']}\"\nAuthor: {quote['author']}\nVotes: {len(quote['remove_votes'])}\nVetos: {len(quote['remove_vetos'])}```")
+			await ctx.send(
+			    f"```Quote: \"{quote['quote']}\"\nAuthor: {quote['author']}\nVotes: {len(quote['remove_votes'])}\nVetos: {len(quote['remove_vetos'])}```"
+			)
 		except:
 			await ctx.send('Sorry for the inconvenience, something went wrong.')
 			log.warning(f'Could either not convert argument or its not present in the database. Key: {arg}')
 
 	@q.command()
-	async def vote(self, ctx, quote_id = None):
+	async def vote(self, ctx, quote_id=None):
 		quotes, guild_key, author_id = self.load_quotes(), str(ctx.guild.id), ctx.author.id
 		if not self.data_base_present(quotes, guild_key):
 			return
@@ -231,13 +246,16 @@ class Quotes(commands.Cog):
 			if author_id in quotes[guild_key][quote_id]['remove_vetos']:
 				quotes[guild_key][quote_id]['remove_vetos'].remove(author_id)
 		await ctx.send('Vote has been registered')
-		if len(quotes[guild_key][quote_id]['remove_votes']) - len(quotes[guild_key][quote_id]['remove_vetos']) >= self.config['needed_votes']:
-			await ctx.send(f"Quote has been removed\n> {quotes[guild_key][quote_id]['id']}: \"{quotes[guild_key][quote_id]['quote']}\" - {quotes[guild_key][quote_id]['author']}")
+		if len(quotes[guild_key][quote_id]['remove_votes']) - len(quotes[guild_key][quote_id]['remove_vetos']
+		                                                         ) >= self.config['needed_votes']:
+			await ctx.send(
+			    f"Quote has been removed\n> {quotes[guild_key][quote_id]['id']}: \"{quotes[guild_key][quote_id]['quote']}\" - {quotes[guild_key][quote_id]['author']}"
+			)
 			del quotes[guild_key][quote_id]
 		self.store_quotes(quotes)
 
 	@q.command()
-	async def veto(self, ctx, quote_id = None):
+	async def veto(self, ctx, quote_id=None):
 		quotes, guild_key, author_id = self.load_quotes(), str(ctx.guild.id), ctx.author.id
 		if not self.data_base_present(quotes, guild_key):
 			return

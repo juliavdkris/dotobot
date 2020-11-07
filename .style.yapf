@@ -1,4 +1,4 @@
 [style]
-based_on_style = pep8
+based_on_style = facebook
 column_limit = 120
 use_tabs = true
