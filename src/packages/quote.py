@@ -14,12 +14,15 @@ from os import path, makedirs
 
 # -------------------------> Main
 
+
 def setup(bot):
 	log.info('Quotes module has been activated')
 	bot.add_cog(Quotes(bot))
 
+
 def teardown(bot):
 	log.info('Quotes module has been deactivated')
+
 
 class Quotes(commands.Cog):
 	def __init__(self, bot):
@@ -56,7 +59,7 @@ class Quotes(commands.Cog):
 		return
 
 	async def mass_quote(self, ctx, quotes):
-		quotes = sorted(quotes, key = lambda i: i['id'])
+		quotes = sorted(quotes, key=lambda i: i['id'])
 		quote_brackets, qmsg = '```', '```'
 		if len(quotes) == 0:
 			await ctx.send('No entries match the search')
@@ -71,7 +74,7 @@ class Quotes(commands.Cog):
 		self.config = self.load_config()
 		log.info(f'Quotes ran an update')
 
-	@commands.group(aliases = ['quote'])
+	@commands.group(aliases=['quote'])
 	async def q(self, ctx):
 		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
@@ -83,10 +86,10 @@ class Quotes(commands.Cog):
 			log.info(f'QUOTE User {ctx.author.name} has called command:{ctx.invoked_subcommand}')
 
 	@q.command()
-	async def add(self, ctx, *, args = None):
+	async def add(self, ctx, *, args=None):
 		guild_id = str(ctx.guild.id)
 		quote, author = self.split_quote(args)
-		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:
 			quotes = json.load(file)
 			if len(quotes) == 0:  # custom check since it should add a quote
 				nextid = 0
@@ -100,12 +103,11 @@ class Quotes(commands.Cog):
 		log.info(f"QUOTE has been added; {nextid}: \"{quote}\" - {author}")
 		await ctx.send(f'Quote added. Assigned ID: {nextid}')
 
-
-	@q.command(aliases = ['del', 'delete'])
+	@q.command(aliases=['del', 'delete'])
 	@commands.has_permissions(administrator=True)
-	async def remove(self, ctx, *, args = None):
+	async def remove(self, ctx, *, args=None):
 		quote_key, guild_id, succes = str(int(args)), str(ctx.guild.id), False
-		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:
 			quotes = json.load(file)
 			if quote_key in quotes:
 				quote = quotes.pop(quote_key)
@@ -121,9 +123,9 @@ class Quotes(commands.Cog):
 			log.warning(f'QUOTE remove key could not be found in database. Key: {quote_key}')
 			await ctx.send(f'Could not find {quote_key} in the database')
 
-	@q.command(aliases = ['change'])  # assuming this server already has a database for them.
+	@q.command(aliases=['change'])  # assuming this server already has a database for them.
 	@commands.has_permissions(administrator=True)
-	async def edit(self, ctx, * args):  # the arg parser can do some weird stuff with quotation marks
+	async def edit(self, ctx, *args):  # the arg parser can do some weird stuff with quotation marks
 		try:
 			index = str(int(args[0]))  # check for impostor aka strings
 		except:
@@ -132,7 +134,7 @@ class Quotes(commands.Cog):
 			return
 		request, guild_id = args[1], str(ctx.guild.id)
 
-		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:  # starting the file lock
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:  # starting the file lock
 			quotes = json.load(file)
 			if index not in quotes:  # if the quote is not present we still want to be able to edit this specific index, will screw with the max function in q add
 				quotes[index] = {'quote': '', 'author': '', 'remove_votes': [], 'remove_vetos': [], 'id': int(index)}
@@ -175,7 +177,7 @@ class Quotes(commands.Cog):
 		await self.mass_quote(ctx, list(quotes.values()))
 
 	@q.command()
-	async def last(self, ctx, arg = 0):
+	async def last(self, ctx, arg=0):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		quotes = list(quotes.values())
 		if not arg:
@@ -189,7 +191,7 @@ class Quotes(commands.Cog):
 		await self.mass_quote(ctx, quotes[-arg:])
 
 	@q.command()
-	async def stats(self, ctx, arg = None):
+	async def stats(self, ctx, arg=None):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		if arg == None:
 			await ctx.send(f'Displaying database wide statistics\nAmount of quotes: {len(quotes)}\nEmpty quotes: `{", ".join([str(number) for number in range(0,max(map(lambda x: int(x), quotes.keys()))) if str(number) not in quotes])}`')
@@ -203,15 +205,15 @@ class Quotes(commands.Cog):
 			log.warning(f'Could either not convert argument or its not present in the database. Key: {arg}')
 
 	@q.command()
-	async def vote(self, ctx, quote_id = None):
-		guild_id, author_id, deleted =  str(ctx.guild.id), ctx.author.id, False
+	async def vote(self, ctx, quote_id=None):
+		guild_id, author_id, deleted = str(ctx.guild.id), ctx.author.id, False
 		try:
 			quote_id = str(int(quote_id))
 		except:
 			log.warning('Vote could not convert arg to an int. Key: {quote_id}')
 			return
 
-		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:
 			quotes = json.load(file)
 			if author_id not in quotes[quote_id]['remove_votes']:
 				quotes[quote_id]['remove_votes'].append(author_id)
@@ -228,7 +230,7 @@ class Quotes(commands.Cog):
 			await ctx.send(f"Quote has been removed\n> {quotes[quote_id]['id']}: \"{quotes[quote_id]['quote']}\" - {quotes[quote_id]['author']}")
 
 	@q.command()
-	async def veto(self, ctx, quote_id = None):
+	async def veto(self, ctx, quote_id=None):
 		guild_id, author_id = str(ctx.guild.id), ctx.author.id
 		try:
 			quote_id = str(int(quote_id))
@@ -236,7 +238,7 @@ class Quotes(commands.Cog):
 			log.warning('Veto could not convert arg to an int. Key: {quote_id}')
 			return
 
-		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:
 			quotes = json.load(file)
 			if author_id not in quotes[quote_id]['remove_vetos']:
 				quotes[quote_id]['remove_vetos'].append(author_id)

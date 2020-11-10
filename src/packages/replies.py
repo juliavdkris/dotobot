@@ -15,12 +15,15 @@ import os.path
 
 # -------------------------> Main
 
+
 def setup(bot):
 	log.info('Replies module has been activated')
 	bot.add_cog(Replies(bot))
 
+
 def teardown(bot):
 	log.info('Replies module has been deactivated')
+
 
 class Replies(commands.Cog):
 	def __init__(self, bot):
@@ -54,7 +57,7 @@ class Replies(commands.Cog):
 			return True
 		try:
 			log.debug('waiting on multi line parse')
-			msg2 = await self.bot.wait_for('message', check=lambda message: message.author == msg.author, timeout = 15)
+			msg2 = await self.bot.wait_for('message', check=lambda message: message.author == msg.author, timeout=15)
 			content += ' ' + msg2.content.lower()
 			if await self.flag_checker(content) == 2:
 				await msg.delete()
@@ -87,7 +90,7 @@ class Replies(commands.Cog):
 				with open('storage/kom_voice.png', 'br') as fp:
 					await c.send(file=discord.File(fp, 'kom_voice.png'))
 
-			elif 'shipit' in msgcontent.replace(' ',''):
+			elif 'shipit' in msgcontent.replace(' ', ''):
 				await c.send("https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1")
 
 			try:

@@ -10,8 +10,10 @@ from discord.ext import commands
 
 # -------------------------> Client
 
+
 def setup(bot):
 	bot.add_cog(Miscellaneous(bot))
+
 
 class Miscellaneous(commands.Cog):
 	def __init__(self, bot):
@@ -24,7 +26,7 @@ class Miscellaneous(commands.Cog):
 
 	@commands.command()
 	@commands.has_permissions(administrator=True)
-	async def dump(self, ctx, *, arg = ''):
+	async def dump(self, ctx, *, arg=''):
 		if 'log' in arg:
 			with open('discord.log', 'br') as f:
 				await ctx.send(file=discord.File(f, 'discord.log'))

@@ -1,4 +1,4 @@
 [style]
 based_on_style = facebook
-column_limit = 120
+column_limit = 300
 use_tabs = true
