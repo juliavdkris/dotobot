@@ -5,9 +5,9 @@ import logging as log
 log.basicConfig(
 	level=log.INFO, # Basic logging and formatting settings
 	format='%(asctime)s [%(levelname)s] @ %(name)s: %(message)s',
-	datefmt='%d/%m/%y %H:%M:%S',
-	filename='discord.log', # File settings
-	filemode='w'
+	datefmt='%d/%m/%y %H:%M:%S'
+	# filename='discord.log', # File settings
+	# filemode='w'
 )
 
 # Import libraries
@@ -23,7 +23,7 @@ load_dotenv()
 # -------------------------> Globals
 
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix='!', intents = intents)
+bot = commands.Bot(command_prefix=getenv('PREFIX'), intents = intents)
 extensions, deactivated_extensions = [],[]
 
 # -------------------------> Client
@@ -93,14 +93,14 @@ async def restart(ctx, * args):
 
 def load_config():
 	global extensions, deactivated_extensions
-	log.debug(f'quotes_config.json has been loaded')
-	with open('config/main_config.json', 'r', encoding='utf-8') as file:
+	log.debug(f'config/main.json has been loaded')
+	with open('storage/config/main.json', 'r', encoding='utf-8') as file:
 		config = json.load(file)
 		extensions, deactivated_extensions = config['active_extensions'], config['unactive_extensions']
 
 def save_config():
-	log.debug(f'main_config.json has been saved')
-	with open('config/main_config.json', 'w', encoding='utf-8') as file:
+	log.debug(f'storage/config/main.json has been saved')
+	with open('storage/config/main.json', 'w', encoding='utf-8') as file:
 		json.dump({'active_extensions': extensions, 'unactive_extensions': deactivated_extensions}, file, sort_keys=True, indent=4)
 
 # -------------------------> Main
@@ -110,9 +110,9 @@ if __name__ == '__main__':
 		mkdir('storage')
 	if not os.path.exists('config'):
 		mkdir('config')
-	if not os.path.isfile('config/main_config.json'):
-		log.critical(f'FILE NOT FOUND, could not find the main_config file, setting up a template')
-		with open('config/main_config.json', 'w+', encoding='utf-8') as file:
+	if not os.path.isfile('storage/config/main.json'):
+		log.critical(f'FILE NOT FOUND, could not find the main config file, setting up a template')
+		with open('storage/config/main.json', 'w+', encoding='utf-8') as file:
 			json.dump({'active_extensions': [], 'unactive_extensions': []}, file, sort_keys=True, indent=4)
 	load_config()
 	for extension in extensions:

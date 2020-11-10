@@ -10,14 +10,15 @@ from discord.ext import commands
 import json
 import asyncio
 import os.path
+from os import path, makedirs
 from copy import deepcopy
 
 # -------------------------> Main
 
 def setup(bot):
-	if not os.path.isfile('config/homicide_config.json'):
-		log.critical(f'FILE NOT FOUND, could not find the homicide_config file, setting up a template')
-		with open('config/homicide_config.json', 'w+', encoding='utf-8') as file:
+	if not os.path.isfile('storage/config/homicide.json'):
+		log.critical(f'FILE NOT FOUND, could not find the homicide config file, setting up a template')
+		with open('storage/config/homicide.json', 'w+', encoding='utf-8') as file:
 			json.dump({  # again how ironic would a global config file be?, not too bad right?
 				"server_timeout": 	0,
 				"mute_timeout":		0,
@@ -25,9 +26,11 @@ def setup(bot):
 				"lynch_votes": 		0,
 				"mute_votes": 		0
 			}, file, sort_keys=True, indent=4)
-	if not os.path.isfile('storage/roles.json'):
+	if not path.exists('storage/db'):
+		makedirs('storage/db')
+	if not os.path.isfile('storage/db/roles.json'):
 		log.critical(f'FILE NOT FOUND, could not find the roles file, setting up a template')
-		with open('storage/roles.json', 'w+', encoding='utf-8') as file:
+		with open('storage/db/roles.json', 'w+', encoding='utf-8') as file:
 			json.dump({}, file, sort_keys=True, indent=4)
 	log.info('Homicide module has been activated')
 	bot.add_cog(Homicide(bot))
@@ -41,12 +44,12 @@ class Homicide(commands.Cog):
 		self.config = self.load_config()
 
 	def load_config(self):
-		log.debug(f'homicide_config.json has been loaded')
-		with open('config/homicide_config.json', 'r', encoding='utf-8') as file:
+		log.debug(f'config/homicide.json has been loaded')
+		with open('storage/config/homicide.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	def on_join_helper(self, guild_id, member_id):
-		with open('storage/roles.json', 'r+', encoding = 'utf-8') as file:
+		with open('storage/db/roles.json', 'r+', encoding = 'utf-8') as file:
 			roles = json.load(file)
 			if not guild_id in roles and not member_id in roles[guild_id]:  # if we don't know this user skip the function
 				return (False, {})
@@ -59,7 +62,7 @@ class Homicide(commands.Cog):
 
 
 	def homicide_helper(self, guild_id, target_user):
-		with open('storage/roles.json', 'r+', encoding = 'utf-8') as file:
+		with open('storage/db/roles.json', 'r+', encoding = 'utf-8') as file:
 			rdb = json.load(file)
 			if not guild_id in rdb:
 				log.info(f'Added {guild_id} server id to the role database')  # TODO maybe actually do this via the server so we can see their name /shrug
@@ -153,8 +156,8 @@ class Homicide(commands.Cog):
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
 			for user in users:
-			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
-		asyncio.gather(*tasks)
+				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
+			asyncio.gather(*tasks)
 
 	@commands.command()
 	async def genocide(self, ctx, * role: discord.Role):  # when the tensions get high

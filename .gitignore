@@ -10,5 +10,9 @@ __pycache__/
 .idea/
 
 # Bot files
-storage/
+# This looks dumb, but git ignores excludes when you're matching directories for performance reasons
+storage/**/*.*
+!storage/config/main.json
+!storage/config/replies.json
+!storage/static/*
 discord.log

@@ -10,16 +10,16 @@ from discord.ext import commands
 import json
 from random import choice
 import re
-from os import path, mkdir
+from os import path, makedirs
 
 # -------------------------> Main
 
 def setup(bot):
-	if not path.exists('quotes'):
-		mkdir('quotes')
-	if not path.isfile('config/quotes_config.json'):
-		log.critical(f'FILE NOT FOUND, could not find the quotes_config file, setting up a template')
-		with open('config/quotes_config.json', 'w+', encoding='utf-8') as file:
+	if not path.exists('storage/db/quotes'):
+		makedirs('storage/db/quotes')
+	if not path.isfile('storage/config/quotes.json'):
+		log.critical(f'FILE NOT FOUND, could not find the quotes config file, setting up a template')
+		with open('storage/config/quotes.json', 'w+', encoding='utf-8') as file:
 			json.dump({'needed_votes': 0}, file, sort_keys=True, indent=4)
 	log.info('Quotes module has been activated')
 	bot.add_cog(Quotes(bot))
@@ -33,13 +33,13 @@ class Quotes(commands.Cog):
 		self.config = self.load_config()
 
 	def load_config(self):
-		log.debug(f'quotes_config.json has been loaded')
-		with open('config/quotes_config.json', 'r', encoding='utf-8') as file:
+		log.debug(f'config/quotes.json has been loaded')
+		with open('storage/config/quotes.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	def load_quotes(self, guild_id: str):  # returns quotes from the specific server
-		log.debug(f'{guild_id}.json has been loaded')
-		with open(f'quotes/{guild_id}.json', 'r', encoding='utf-8') as file:
+		log.debug(f'db/quotes/{guild_id}.json has been loaded')
+		with open(f'storage/db/quotes/{guild_id}.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	def split_quote(self, quote):
@@ -79,8 +79,8 @@ class Quotes(commands.Cog):
 
 	@commands.group(aliases = ['quote'])
 	async def q(self, ctx):
-		if not path.isfile('quotes/' + str(ctx.guild.id) + '.json'):
-			with open('quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
+		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
+			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
 				json.dump({}, file, sort_keys=True, indent=4)
 		if ctx.invoked_subcommand is None:
 			log.info(f'QUOTE User {ctx.author.name} has passed an invalid quote subcommand: {ctx.message.content}')
@@ -92,7 +92,7 @@ class Quotes(commands.Cog):
 	async def add(self, ctx, *, args = None):
 		guild_id = str(ctx.guild.id)
 		quote, author = self.split_quote(args)
-		with open(f'quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
 			quotes = json.load(file)
 			if len(quotes) == 0:  # custom check since it should add a quote
 				nextid = 0
@@ -111,7 +111,7 @@ class Quotes(commands.Cog):
 	@commands.has_permissions(administrator=True)
 	async def remove(self, ctx, *, args = None):
 		quote_key, guild_id, succes = str(int(args)), str(ctx.guild.id), False
-		with open(f'quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
 			quotes = json.load(file)
 			if quote_key in quotes:
 				quote = quotes.pop(quote_key)
@@ -138,7 +138,7 @@ class Quotes(commands.Cog):
 			return
 		request, guild_id = args[1], str(ctx.guild.id)
 
-		with open(f'quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:  # starting the file lock
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:  # starting the file lock
 			quotes = json.load(file)
 			if index not in quotes:  # if the quote is not present we still want to be able to edit this specific index, will screw with the max function in q add
 				quotes[index] = {'quote': '', 'author': '', 'remove_votes': [], 'remove_vetos': [], 'id': int(index)}
@@ -217,7 +217,7 @@ class Quotes(commands.Cog):
 			log.warning('Vote could not convert arg to an int. Key: {quote_id}')
 			return
 
-		with open(f'quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
 			quotes = json.load(file)
 			if author_id not in quotes[quote_id]['remove_votes']:
 				quotes[quote_id]['remove_votes'].append(author_id)
@@ -242,7 +242,7 @@ class Quotes(commands.Cog):
 			log.warning('Veto could not convert arg to an int. Key: {quote_id}')
 			return
 
-		with open(f'quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
+		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding = 'utf-8') as file:
 			quotes = json.load(file)
 			if author_id not in quotes[quote_id]['remove_vetos']:
 				quotes[quote_id]['remove_vetos'].append(author_id)

@@ -1,0 +1,10 @@
+{
+	"active_extensions": [
+		"packages.boolean",
+		"packages.homicide",
+		"packages.miscellaneous",
+		"packages.quote",
+		"packages.replies"
+	],
+	"unactive_extensions": []
+}

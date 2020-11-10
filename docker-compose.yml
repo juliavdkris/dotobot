@@ -5,7 +5,6 @@ services:
   dotobot:
     image: ghcr.io/samvdkris/dotobot
     build: .
-    restart: always
     volumes:
       - ./src:/home/worker/app
       - ./storage:/home/worker/storage

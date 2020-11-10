@@ -16,9 +16,9 @@ import os.path
 # -------------------------> Main
 
 def setup(bot):
-	if not os.path.isfile('config/replies_config.json'):
-		log.critical(f'FILE NOT FOUND, could not find the replies_config file, setting up a template')
-		with open('config/replies_config.json', 'w+', encoding='utf-8') as file:
+	if not os.path.isfile('storage/config/replies.json'):
+		log.critical(f'FILE NOT FOUND, could not find the replies config file, setting up a template')
+		with open('storage/config/replies.json', 'w+', encoding='utf-8') as file:
 			json.dump({"weed_items":[],  # how ironic would it be to put all of this in a global config file. Kinda feeling that vibe, ngl
 			"weed_reactions" :[],
 			"funny_items" : [],
@@ -39,8 +39,8 @@ class Replies(commands.Cog):
 		self.f_flag = True
 
 	def load_config(self):
-		log.debug(f'replies_config.json has been loaded')
-		with open('config/replies_config.json', 'r', encoding='utf-8') as file:
+		log.debug(f'config/replies.json has been loaded')
+		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	async def flag_checker(self, content):

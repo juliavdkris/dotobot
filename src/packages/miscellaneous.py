@@ -30,10 +30,10 @@ class Miscellaneous(commands.Cog):
 				await ctx.send(file=discord.File(f, 'discord.log'))
 				return
 		elif 'roles' in arg:
-			with open('storage/roles.json', 'br') as f:
+			with open('storage/db/roles.json', 'br') as f:
 				await ctx.send(file=discord.File(f, 'roles.json'))
 				return
 		else:
-			with open('storage/quotes.json', 'br') as f:
+			with open('storage/db/quotes.json', 'br') as f:
 				await ctx.send(file=discord.File(f, 'quotes.json'))
 				return
