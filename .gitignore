@@ -15,4 +15,4 @@ storage/**/*.*
 !storage/config/main.json
 !storage/config/replies.json
 !storage/static/*
-discord.log
+!storage/discord.log

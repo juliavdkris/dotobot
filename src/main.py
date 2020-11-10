@@ -5,9 +5,9 @@ import logging as log
 log.basicConfig(
 	level=log.INFO, # Basic logging and formatting settings
 	format='%(asctime)s [%(levelname)s] @ %(name)s: %(message)s',
-	datefmt='%d/%m/%y %H:%M:%S'
-	# filename='discord.log', # File settings
-	# filemode='w'
+	datefmt='%d/%m/%y %H:%M:%S',
+	filename='storage/discord.log', # File settings
+	filemode='w'
 )
 
 # Import libraries
