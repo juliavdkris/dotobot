@@ -15,12 +15,6 @@ from os import path, makedirs
 # -------------------------> Main
 
 def setup(bot):
-	if not path.exists('storage/db/quotes'):
-		makedirs('storage/db/quotes')
-	if not path.isfile('storage/config/quotes.json'):
-		log.critical(f'FILE NOT FOUND, could not find the quotes config file, setting up a template')
-		with open('storage/config/quotes.json', 'w+', encoding='utf-8') as file:
-			json.dump({'needed_votes': 0}, file, sort_keys=True, indent=4)
 	log.info('Quotes module has been activated')
 	bot.add_cog(Quotes(bot))
 

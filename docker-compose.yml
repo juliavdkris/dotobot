@@ -6,9 +6,19 @@ services:
     image: ghcr.io/samvdkris/dotobot
     build: .
     volumes:
-      - ./src:/home/worker/app
-      - ./storage:/home/worker/storage
+      - ./src:/root/app
+      - storage:/root/storage
     environment:
       - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
       - PREFIX=${PREFIX}
+
+
+# Weird volume fuckery. It works.
+volumes:
+  storage:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: 'storage'

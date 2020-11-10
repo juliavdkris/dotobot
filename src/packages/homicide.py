@@ -16,22 +16,6 @@ from copy import deepcopy
 # -------------------------> Main
 
 def setup(bot):
-	if not os.path.isfile('storage/config/homicide.json'):
-		log.critical(f'FILE NOT FOUND, could not find the homicide config file, setting up a template')
-		with open('storage/config/homicide.json', 'w+', encoding='utf-8') as file:
-			json.dump({  # again how ironic would a global config file be?, not too bad right?
-				"server_timeout": 	0,
-				"mute_timeout":		0,
-				"vote_timer": 		0,
-				"lynch_votes": 		0,
-				"mute_votes": 		0
-			}, file, sort_keys=True, indent=4)
-	if not path.exists('storage/db'):
-		makedirs('storage/db')
-	if not os.path.isfile('storage/db/roles.json'):
-		log.critical(f'FILE NOT FOUND, could not find the roles file, setting up a template')
-		with open('storage/db/roles.json', 'w+', encoding='utf-8') as file:
-			json.dump({}, file, sort_keys=True, indent=4)
 	log.info('Homicide module has been activated')
 	bot.add_cog(Homicide(bot))
 
