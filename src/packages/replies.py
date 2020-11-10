@@ -15,32 +15,22 @@ import os.path
 
 # -------------------------> Main
 
-
 def setup(bot):
-	if not os.path.isfile('storage/replies_config.json'):
+	if not os.path.isfile('config/replies_config.json'):
 		log.critical(f'FILE NOT FOUND, could not find the replies_config file, setting up a template')
-		with open('storage/replies_config.json', 'w+', encoding='utf-8') as file:
-			json.dump(
-			    {
-			        "weed_items": [
-			        ],  # how ironic would it be to put all of this in a global config file. Kinda feeling that vibe, ngl
-			        "weed_reactions": [],
-			        "funny_items": [],
-			        "funny_reactions": [],
-			        "peace_items": [[], []],
-			        "peace_reactions": []
-			    },
-			    file,
-			    sort_keys=True,
-			    indent=4
-			)
+		with open('config/replies_config.json', 'w+', encoding='utf-8') as file:
+			json.dump({"weed_items":[],  # how ironic would it be to put all of this in a global config file. Kinda feeling that vibe, ngl
+			"weed_reactions" :[],
+			"funny_items" : [],
+			"funny_reactions" : [],
+			"peace_items" : [[],[]],
+			"peace_reactions" : []
+			}, file, sort_keys=True, indent=4)
 	log.info('Replies module has been activated')
 	bot.add_cog(Replies(bot))
 
-
 def teardown(bot):
 	log.info('Replies module has been deactivated')
-
 
 class Replies(commands.Cog):
 	def __init__(self, bot):
@@ -50,7 +40,7 @@ class Replies(commands.Cog):
 
 	def load_config(self):
 		log.debug(f'replies_config.json has been loaded')
-		with open('storage/replies_config.json', 'r', encoding='utf-8') as file:
+		with open('config/replies_config.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	async def flag_checker(self, content):
@@ -74,7 +64,7 @@ class Replies(commands.Cog):
 			return True
 		try:
 			log.debug('waiting on multi line parse')
-			msg2 = await self.bot.wait_for('message', check=lambda message: message.author == msg.author, timeout=15)
+			msg2 = await self.bot.wait_for('message', check=lambda message: message.author == msg.author, timeout = 15)
 			content += ' ' + msg2.content.lower()
 			if await self.flag_checker(content) == 2:
 				await msg.delete()
@@ -94,9 +84,7 @@ class Replies(commands.Cog):
 	async def on_message(self, msg):
 		if msg.author.id != self.bot.user.id:
 			msgcontent, c = msg.content.lower(), msg.channel
-			if await self.peace_in_our_time(
-			    msgcontent, msg
-			):  # corresponding message was deleted no need for reactions. command can still be executed :/
+			if await self.peace_in_our_time(msgcontent, msg):  # corresponding message was deleted no need for reactions. command can still be executed :/
 				return
 
 			if msgcontent == 'f' and self.f_flag:
@@ -109,13 +97,11 @@ class Replies(commands.Cog):
 				with open('storage/kom_voice.png', 'br') as fp:
 					await c.send(file=discord.File(fp, 'kom_voice.png'))
 
-			elif 'shipit' in msgcontent.replace(' ', ''):
+			elif 'shipit' in msgcontent.replace(' ',''):
 				await c.send("https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1")
 
 			try:
-				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(
-				    self.config['weed_items']
-				) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
+				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['weed_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
 				if m := re.search(REGEX, msgcontent):
 					for emoji in self.config['weed_reactions']:
 						await msg.add_reaction(emoji)
@@ -124,9 +110,7 @@ class Replies(commands.Cog):
 				pass
 
 			try:
-				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(
-				    self.config['funny_items']
-				) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
+				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['funny_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
 				if m := re.search(REGEX, msgcontent):
 					for emoji in self.config['funny_reactions']:
 						await msg.add_reaction(emoji)
