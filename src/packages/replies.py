@@ -87,7 +87,7 @@ class Replies(commands.Cog):
 				self.f_flag = True
 
 			elif 'kom voice' in msgcontent:
-				with open('storage/kom_voice.png', 'br') as fp:
+				with open('storage/static/kom_voice.png', 'br') as fp:
 					await c.send(file=discord.File(fp, 'kom_voice.png'))
 
 			elif 'shipit' in msgcontent.replace(' ', ''):
@@ -113,5 +113,5 @@ class Replies(commands.Cog):
 
 	@commands.command()
 	async def what(self, ctx):
-		with open('storage/what.png', 'br') as fp:
+		with open('storage/static/what.png', 'br') as fp:
 			await ctx.send(file=discord.File(fp, 'what.png'))
