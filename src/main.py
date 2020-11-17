@@ -7,14 +7,15 @@ log.basicConfig(
     format='%(asctime)s [%(levelname)s] @ %(name)s: %(message)s',
     datefmt='%d/%m/%y %H:%M:%S',
     filename='storage/discord.log',  # File settings
-    filemode='w'
+    filemode='w',
+    encoding='utf-8'
 )
 
 # Import libraries
 import discord
 from discord.ext import commands
 
-from os import getenv, mkdir
+from os import getenv
 import os.path
 import json
 from dotenv import load_dotenv
@@ -51,6 +52,17 @@ async def update(ctx):
 		if cogname in bot.cogs:
 			await bot.cogs[cogname].update()
 	load_config()
+	for extension in extensions:
+		try:
+			bot.load_extension(extension)
+		except:
+			log.info(f'Module {extension} has already been loaded / does not exist')
+	for extension in deactivated_extensions:
+		try:
+			bot.unload_extension(extension)
+		except:
+			log.info(f'Module {extension} has already been unloaded')
+
 	await ctx.send('Everything has been updated')
 
 
@@ -114,15 +126,6 @@ def save_config():
 
 # -------------------------> Main
 if __name__ == '__main__':
-	if not os.path.exists('storage'):
-		log.critical('STORAGE DIRECTORY NOT FOUND, creating a dir')
-		mkdir('storage')
-	if not os.path.exists('config'):
-		mkdir('config')
-	if not os.path.isfile('storage/config/main.json'):
-		log.critical(f'FILE NOT FOUND, could not find the main config file, setting up a template')
-		with open('storage/config/main.json', 'w+', encoding='utf-8') as file:
-			json.dump({'active_extensions': [], 'unactive_extensions': []}, file, sort_keys=True, indent=4)
 	load_config()
 	for extension in extensions:
 		bot.load_extension(extension)

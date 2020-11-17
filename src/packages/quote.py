@@ -10,7 +10,7 @@ from discord.ext import commands
 import json
 from random import choice
 import re
-from os import path, makedirs
+from os import path
 
 # -------------------------> Main
 
@@ -64,10 +64,11 @@ class Quotes(commands.Cog):
 		if len(quotes) == 0:
 			await ctx.send('No entries match the search')
 		for quote in quotes:
-			qmsg += f"{quote['id']}: \"{quote['quote']}\" - {quote['author']}\n"
-			if len(qmsg) >= 1800:
+			text_quote = f"{quote['id']}: \"{quote['quote']}\" - {quote['author']}\n"
+			if len(qmsg) + len(text_quote) >= 1990:  # leave some space for the ```
 				await ctx.send(qmsg + quote_brackets)
 				qmsg = quote_brackets
+			qmsg += text_quote
 		await ctx.send(qmsg + quote_brackets)
 
 	async def update(self):
@@ -78,7 +79,7 @@ class Quotes(commands.Cog):
 	async def q(self, ctx):
 		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
-				json.dump({}, file, sort_keys=True, indent=4)
+				json.dump({}, file, indent=4)
 		if ctx.invoked_subcommand is None:
 			log.info(f'QUOTE User {ctx.author.name} has passed an invalid quote subcommand: {ctx.message.content}')
 			await self.quote(ctx, ctx.message.content)
@@ -97,7 +98,7 @@ class Quotes(commands.Cog):
 				nextid = max(map(lambda x: int(x), quotes.keys())) + 1
 			quotes[str(nextid)] = {'quote': quote, 'author': author, 'remove_votes': [], 'remove_vetos': [], 'id': nextid}
 			file.seek(0)
-			json.dump(quotes, file, sort_keys=True, indent=4)
+			json.dump(quotes, file, indent=4)
 			file.truncate()
 
 		log.info(f"QUOTE has been added; {nextid}: \"{quote}\" - {author}")
@@ -113,7 +114,7 @@ class Quotes(commands.Cog):
 				quote = quotes.pop(quote_key)
 				succes = True
 			file.seek(0)
-			json.dump(quotes, file, sort_keys=True, indent=4)
+			json.dump(quotes, file, indent=4)
 			file.truncate()
 
 		if succes:
@@ -147,7 +148,7 @@ class Quotes(commands.Cog):
 				quotes[index]['quote'], quotes[index]['author'] = quote, author
 
 			file.seek(0)
-			json.dump(quotes, file, sort_keys=True, indent=4)
+			json.dump(quotes, file, indent=4)
 			file.truncate()
 		await ctx.send(f'> {index}: \"{quotes[index]["quote"]}\" - {quotes[index]["author"]}')
 
@@ -179,7 +180,7 @@ class Quotes(commands.Cog):
 	@q.command()
 	async def last(self, ctx, arg=0):
 		quotes = self.load_quotes(str(ctx.guild.id))
-		quotes = list(quotes.values())
+		quotes = sorted(list(quotes.values()), key=lambda i: i['id'])
 		if not arg:
 			arg = 10
 		try:
@@ -222,7 +223,7 @@ class Quotes(commands.Cog):
 			if len(quotes[quote_id]['remove_votes']) - len(quotes[quote_id]['remove_vetos']) >= self.config['needed_votes']:
 				del quotes[quote_id]
 			file.seek(0)
-			json.dump(quotes, file, sort_keys=True, indent=4)
+			json.dump(quotes, file, indent=4)
 			file.truncate()
 
 		await ctx.send('Vote has been registered')  # purely based on the fact that we didn't crash :)
@@ -245,7 +246,7 @@ class Quotes(commands.Cog):
 				if author_id in quotes[quote_id]['remove_votes']:
 					quotes[quote_id]['remove_votes'].remove(author_id)
 			file.seek(0)
-			json.dump(quotes, file, sort_keys=True, indent=4)
+			json.dump(quotes, file, indent=4)
 			file.truncate()
 
 		await ctx.send('Veto has been registered')

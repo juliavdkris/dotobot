@@ -81,8 +81,8 @@ class Replies(commands.Cog):
 				return
 
 			if msgcontent == 'f' and self.f_flag:
-				await c.send('F')  # TODO implement a timer for this
 				self.f_flag = False
+				await c.send('F')
 				await asyncio.sleep(15)
 				self.f_flag = True
 

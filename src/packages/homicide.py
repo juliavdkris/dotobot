@@ -10,7 +10,6 @@ from discord.ext import commands
 import json
 import asyncio
 import os.path
-from os import path, makedirs
 from copy import deepcopy
 
 # -------------------------> Main
@@ -38,7 +37,7 @@ class Homicide(commands.Cog):
 	def on_join_helper(self, guild_id, member_id):
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			roles = json.load(file)
-			if not guild_id in roles and not member_id in roles[guild_id]:  # if we don't know this user skip the function
+			if not guild_id in roles or not member_id in roles[guild_id]:  # if we don't know this user skip the function
 				return (False, {})
 			result = (True, deepcopy(roles[guild_id][member_id]))  # might have to copy / deepcopy here
 			del roles[guild_id][member_id]
@@ -51,7 +50,7 @@ class Homicide(commands.Cog):
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			rdb = json.load(file)
 			if not guild_id in rdb:
-				log.info(f'Added {guild_id} server id to the role database')  # TODO maybe actually do this via the server so we can see their name /shrug
+				log.info(f'Added {guild_id} server id to the role database')
 				rdb[guild_id] = {}
 			rdb[guild_id][str(target_user.id)] = {'nick': target_user.nick, 'roles': [role.id for role in target_user.roles][1:]}
 			file.seek(0)
@@ -138,12 +137,12 @@ class Homicide(commands.Cog):
 	@commands.command()
 	async def lynch(self, ctx, *users: discord.Member):  # and if murder does then so shall lynch
 		log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
-		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")  # TODO joining 1 element in the array does what?
+		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
 			for user in users:
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
-			asyncio.gather(*tasks)
+		asyncio.gather(*tasks)
 
 	@commands.command()
 	async def genocide(self, ctx, *role: discord.Role):  # when the tensions get high
