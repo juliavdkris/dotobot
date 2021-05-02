@@ -84,19 +84,25 @@ async def stop(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def start(ctx, *args):
 	for arg in args:
-		if (ext := 'packages.' + arg) in deactivated_extensions:
+		ext = 'packages.' + arg
+
+		try:
 			bot.load_extension(ext)
+			await ctx.send(f'Module `{ext}` has been activated')
+		except ExtensionNotFound:
+			await ctx.send(f'Module `{ext}` not found.')
+		except ExtensionAlreadyLoaded:
+			await ctx.send(f'Module `{ext}` already active')
+
+		if ext in deactivated_extensions:
 			extensions.append(ext)
 			deactivated_extensions.remove(ext)
-			await ctx.send(f'Module `{ext}` has been activated')
-		else:
-			await ctx.send(f'Module `{ext}` already active or does not exist')
 	save_config()
 
 
 @bot.command()
 async def restart(ctx, *args):
-	if args[0] == 'all':
+	if len(args) == 0 or args[0] == 'all':
 		for extension in extensions:
 			bot.reload_extension(extension)
 		await ctx.send('All modules have been reloaded')
