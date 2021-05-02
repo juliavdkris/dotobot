@@ -25,7 +25,7 @@ class Die(commands.Cog):
 		self.functions = {}
 
 
-	@commands.command()
+	@commands.command(brief='Roll a D6', description='Returns a dice with 1-6 eyes', usage='')
 	async def roll(self,ctx):
 		d6 = [
 			'+-------+\n|       |\n|   o   |\n|       |\n+-------+',

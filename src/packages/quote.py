@@ -75,7 +75,7 @@ class Quotes(commands.Cog):
 		self.config = self.load_config()
 		log.info(f'Quotes ran an update')
 
-	@commands.group(aliases=['quote'])
+	@commands.group(aliases=['quote'], brief='Subgroup for quote functionality', description='Subgroup for quote functionality. Use !help q')
 	async def q(self, ctx):
 		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
@@ -86,7 +86,7 @@ class Quotes(commands.Cog):
 		else:
 			log.info(f'QUOTE User {ctx.author.name} has called command:{ctx.invoked_subcommand}')
 
-	@q.command()
+	@q.command(brief='Add a quote', description='Add a quote to the database', usage='"quote" - author')
 	async def add(self, ctx, *, args=None):
 		guild_id = str(ctx.guild.id)
 		quote, author = self.split_quote(args)
@@ -104,7 +104,7 @@ class Quotes(commands.Cog):
 		log.info(f"QUOTE has been added; {nextid}: \"{quote}\" - {author}")
 		await ctx.send(f'Quote added. Assigned ID: {nextid}')
 
-	@q.command(aliases=['del', 'delete'])
+	@q.command(aliases=['del', 'delete'], brief='remove a quote', description='Remove a quote from the database by id.', usage='123')
 	@commands.has_permissions(administrator=True)
 	async def remove(self, ctx, *, args=None):
 		quote_key, guild_id, succes = str(int(args)), str(ctx.guild.id), False
@@ -124,7 +124,7 @@ class Quotes(commands.Cog):
 			log.warning(f'QUOTE remove key could not be found in database. Key: {quote_key}')
 			await ctx.send(f'Could not find {quote_key} in the database')
 
-	@q.command(aliases=['change'])  # assuming this server already has a database for them.
+	@q.command(aliases=['change'], brief='Edit a quote', description='Either replace a quote completely, only the author, or just the quote.', usage='[author/quote] "quote" - author')  # assuming this server already has a database for them.
 	@commands.has_permissions(administrator=True)
 	async def edit(self, ctx, *args):  # the arg parser can do some weird stuff with quotation marks
 		try:
@@ -152,7 +152,7 @@ class Quotes(commands.Cog):
 			file.truncate()
 		await ctx.send(f'> {index}: \"{quotes[index]["quote"]}\" - {quotes[index]["author"]}')
 
-	@q.command()
+	@q.command(brief='Search quote database', description='Search the quote database for a specific string.', usage='search-term')
 	async def search(self, ctx, *, args):
 		quotes, found_quotes = self.load_quotes(str(ctx.guild.id)), []
 
@@ -172,12 +172,12 @@ class Quotes(commands.Cog):
 					found_quotes.append(quotes[quote])
 		await self.mass_quote(ctx, found_quotes)
 
-	@q.command()
+	@q.command(brief='Return all quotes', description='Return all quotes', usage='')
 	async def all(self, ctx):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		await self.mass_quote(ctx, list(quotes.values()))
 
-	@q.command()
+	@q.command(brief='Return the lastest quotes', description='Return the lastetst x quotes', usage='[15]')
 	async def last(self, ctx, arg=0):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		quotes = sorted(list(quotes.values()), key=lambda i: i['id'])
@@ -191,7 +191,7 @@ class Quotes(commands.Cog):
 			return
 		await self.mass_quote(ctx, quotes[-arg:])
 
-	@q.command()
+	@q.command(brief='Quote database statistics', description='Quote database statistics or ask for data on a specific quote', usage='[quote id]')
 	async def stats(self, ctx, arg=None):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		if arg == None:
@@ -205,7 +205,7 @@ class Quotes(commands.Cog):
 			await ctx.send('Sorry for the inconvenience, something went wrong.')
 			log.warning(f'Could either not convert argument or its not present in the database. Key: {arg}')
 
-	@q.command()
+	@q.command(brief='Vote to delete a quote', description='Vote to delete a quote.', usage='123')
 	async def vote(self, ctx, quote_id=None):
 		guild_id, author_id, deleted = str(ctx.guild.id), ctx.author.id, False
 		try:
@@ -230,7 +230,7 @@ class Quotes(commands.Cog):
 		if deleted:
 			await ctx.send(f"Quote has been removed\n> {quotes[quote_id]['id']}: \"{quotes[quote_id]['quote']}\" - {quotes[quote_id]['author']}")
 
-	@q.command()
+	@q.command(brief='Veto the deletion off a quote', description='Veto the deletion off a quote.', usage='123')
 	async def veto(self, ctx, quote_id=None):
 		guild_id, author_id = str(ctx.guild.id), ctx.author.id
 		try:

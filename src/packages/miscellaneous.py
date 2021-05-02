@@ -19,12 +19,12 @@ class Miscellaneous(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command()
+	@commands.command(brief='Ping the bot', description='Ping the bot', usage='')
 	async def ping(self, ctx):
 		log.info(f'Recieved ping command from user {ctx.author.name}')
 		await ctx.send('Pong!')
 
-	@commands.command()
+	@commands.command(brief='Dump bot related data', description='Allows the duping of the `log` the `roles` or the local quote database, defaults to quotes', usage='log')
 	@commands.has_permissions(administrator=True)
 	async def dump(self, ctx, *, arg=''):
 		if 'log' in arg:
@@ -40,7 +40,7 @@ class Miscellaneous(commands.Cog):
 				await ctx.send(file=discord.File(f, 'quotes.json'))
 				return
 
-	@commands.command()
+	@commands.command(brief='Delete x messages', description='Delete x messages with a max of 95', usage='5')
 	@commands.has_permissions(administrator=True)
 	async def delete(self, ctx, amount: int = 97):
 		approval = ['yes', 'ja', 'ye', 'yea', 'yeah', 'y']
@@ -57,7 +57,7 @@ class Miscellaneous(commands.Cog):
 		messagelist.append(msg)
 		await ctx.channel.delete_messages(messagelist)
 
-	@commands.command()
+	@commands.command(brief='Set bot activity', description='Set bot playing, listening, or watching status ', usage='watching netflix')
 	@commands.has_permissions(administrator=True)
 	async def activity(self, ctx, *arg):
 		if arg[0] == 'listening':
