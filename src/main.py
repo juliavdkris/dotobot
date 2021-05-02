@@ -14,6 +14,7 @@ log.basicConfig(
 # Import libraries
 import discord
 from discord.ext import commands
+from pretty_help import PrettyHelp
 
 from os import getenv
 import os.path
@@ -25,6 +26,8 @@ load_dotenv()
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
+ending_note = "Powered by DotoBot\nFor command {help.clean_prefix}{help.invoked_with}"
+bot.help_command = PrettyHelp(ending_note=ending_note)
 extensions, deactivated_extensions = [], []
 
 # -------------------------> Client
