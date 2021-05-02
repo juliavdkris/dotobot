@@ -4,7 +4,8 @@
 		"packages.homicide",
 		"packages.miscellaneous",
 		"packages.quote",
-		"packages.replies"
+		"packages.replies",
+		"packages.vcPing"
 	],
 	"unactive_extensions": []
 }
