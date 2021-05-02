@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 import threading
-lock = threading.Lock()
+lock = threading.RLock()
 
 vc_suffix = '-VC'
 
