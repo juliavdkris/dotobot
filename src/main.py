@@ -47,7 +47,7 @@ async def on_message(msg):
 		await bot.process_commands(msg)
 
 
-@bot.command()
+@bot.command(brief='Update all modules', description='Update all modules.', usage='')
 @commands.has_permissions(administrator=True)
 async def update(ctx):
 	updateable_cogs = ['Homicide', 'Replies', 'Quotes']
@@ -69,7 +69,7 @@ async def update(ctx):
 	await ctx.send('Everything has been updated')
 
 
-@bot.command()
+@bot.command(brief='Stop specific modules', description='Stop specific modules. Can only stop running modules.', usage='quote')
 @commands.has_permissions(administrator=True)
 async def stop(ctx, *args):
 	for arg in args:
@@ -83,7 +83,7 @@ async def stop(ctx, *args):
 	save_config()
 
 
-@bot.command()
+@bot.command(brief='Start a specific module', description='Start a specific module.', usage='quote')
 @commands.has_permissions(administrator=True)
 async def start(ctx, *args):
 	for arg in args:
@@ -97,7 +97,7 @@ async def start(ctx, *args):
 	save_config()
 
 
-@bot.command()
+@bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx, *args):
 	if args[0] == 'all':
 		for extension in extensions:

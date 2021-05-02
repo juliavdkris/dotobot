@@ -111,7 +111,7 @@ class Replies(commands.Cog):
 			except:
 				pass
 
-	@commands.command()
+	@commands.command(brief='What', description='What', usage='')
 	async def what(self, ctx):
 		with open('storage/static/what.png', 'br') as fp:
 			await ctx.send(file=discord.File(fp, 'what.png'))

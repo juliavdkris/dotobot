@@ -55,10 +55,10 @@ class Voice(commands.Cog):
 		elif 'tequila' in content:
 			await self.voice_helper(msg.author.voice.channel, 'hola_cabron.mp3')
 
-	@commands.command()
+	@commands.command(brief='Stuff is gone', description='Stuff is gone.', usage='my social life')
 	async def gone(self, ctx, arg: str = ''):
 		await self.crabrave(ctx, ctx.author.voice.channel, arg)
 
-	@commands.command()
+	@commands.command(brief='He dead', description='He dead.', usage='')
 	async def dead(self, ctx):
 		await self.voice_helper(ctx.author.voice.channel, 'astronomia.mp3')  # coffin dance gif / shortened song

@@ -119,7 +119,7 @@ class Homicide(commands.Cog):
 		self.config = self.load_config()
 		log.info(f'Homicide ran an update')
 
-	@commands.command()
+	@commands.command(brief='Insta kick someone', description='Insta kick one or multiple people as an administrator by tagging them.', usage='@bad-person')
 	@commands.has_role('admin')
 	async def murder(self, ctx, *users: discord.Member):  # murder now supports multiple arguments
 		log.info(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
@@ -128,13 +128,13 @@ class Homicide(commands.Cog):
 			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 		asyncio.gather(*tasks)
 
-	@commands.command()
+	@commands.command(brief='Temp ban yourself', description='Temp ban yourself. To save face one might commit the ritual of seppuku', usage='')
 	async def suicide(self, ctx):
 		log.info('SUICIDE: {ctx.author.name} Has committed suicide')
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
-	@commands.command()
+	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person')
 	async def lynch(self, ctx, *users: discord.Member):  # and if murder does then so shall lynch
 		log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
 		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")
@@ -144,7 +144,7 @@ class Homicide(commands.Cog):
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 		asyncio.gather(*tasks)
 
-	@commands.command()
+	@commands.command(brief='Vote to tempban an entire role.', description='Vote to tempban an entire role.', usage='@leaflovers')
 	async def genocide(self, ctx, *role: discord.Role):  # when the tensions get high
 		role = role[0]
 		log.info(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
@@ -158,7 +158,7 @@ class Homicide(commands.Cog):
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 			asyncio.gather(*tasks)
 
-	@commands.command()
+	@commands.command(brief='Vote to mute someone for a timeout', description='Vote to mute someone for a timeout.', usage='@loud-person')
 	async def silence(self, ctx, *users: discord.Member):
 		user = users[0]
 		msg = await ctx.send(f'Damn people really wanna shut up {user.name}.\nYour say.')
