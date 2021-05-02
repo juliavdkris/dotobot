@@ -102,7 +102,7 @@ async def start(ctx, *args):
 
 @bot.command()
 async def restart(ctx, *args):
-	if len(args) == 0 or args[0] == 'all':
+	if not args or args[0] == 'all':
 		for extension in extensions:
 			bot.reload_extension(extension)
 		await ctx.send('All modules have been reloaded')
