@@ -15,6 +15,7 @@ log.basicConfig(
 import discord
 from discord.ext import commands
 from pretty_help import PrettyHelp
+from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
 
 from os import getenv
 import os.path
@@ -88,18 +89,22 @@ async def stop(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def start(ctx, *args):
 	for arg in args:
-		ext = 'packages.' + arg
-
+		ext, e = 'packages.' + arg, None
 		try:
 			bot.load_extension(ext)
+			extensions.append(ext)
 			await ctx.send(f'Module `{ext}` has been activated')
-		except ExtensionNotFound:
+		except ExtensionNotFound as e:
+			log.warning(e)
 			await ctx.send(f'Module `{ext}` not found.')
-		except ExtensionAlreadyLoaded:
+		except ExtensionAlreadyLoaded as e:
+			log.warning(e)
 			await ctx.send(f'Module `{ext}` already active')
+		except Exception as e:
+			log.warning(e)
+			await ctx.send(f'Something went wrong, please read the logs for more information')
 
 		if ext in deactivated_extensions:
-			extensions.append(ext)
 			deactivated_extensions.remove(ext)
 	save_config()
 
