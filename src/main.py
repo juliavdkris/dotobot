@@ -36,7 +36,7 @@ extensions, deactivated_extensions = [], []
 @bot.event
 async def on_ready():
 	log.info(f'Logged in as {bot.user}')
-	ending_note = 'Powered by ' + bot.user.name + '\nFor command {help.clean_prefix}{help.invoked_with}'
+	ending_note = f'Powered by {bot.user.name}\nFor command {{help.clean_prefix}}{{help.invoked_with}}'
 	bot.help_command = PrettyHelp(ending_note=ending_note, color=color, no_category='System')
 
 
