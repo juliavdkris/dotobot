@@ -25,7 +25,7 @@ def teardown(bot):
 	log.info('Replies module has been deactivated')
 
 
-class Replies(commands.Cog):
+class Replies(commands.Cog, description='Module that replies to you in chat'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.config = self.load_config()

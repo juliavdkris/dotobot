@@ -23,7 +23,7 @@ def teardown(bot):
 	log.info('Boolean module has been deactivated')
 
 
-class Boolean(commands.Cog):
+class Boolean(commands.Cog, description='Boolean logic module'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.functions = {}

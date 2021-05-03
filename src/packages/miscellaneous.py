@@ -15,7 +15,7 @@ def setup(bot):
 	bot.add_cog(Miscellaneous(bot))
 
 
-class Miscellaneous(commands.Cog):
+class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionality'):
 	def __init__(self, bot):
 		self.bot = bot
 
