@@ -24,7 +24,7 @@ def teardown(bot):
 	log.info('Homicide module has been deactivated')
 
 
-class Homicide(commands.Cog):
+class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote or command'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.config = self.load_config()

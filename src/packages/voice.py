@@ -23,7 +23,7 @@ def teardown(bot):
 	log.info('Voice module has been deactivated')
 
 
-class Voice(commands.Cog):
+class Voice(commands.Cog, description='Play music in voice'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.path = getenv('FFMPEG')

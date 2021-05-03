@@ -19,7 +19,7 @@ def setup(bot):
 def teardown(bot):
 	log.info('Die module has been deactivated')
 
-class Die(commands.Cog):
+class Die(commands.Cog, name='RNG', description='Simulate dice throws'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.functions = {}

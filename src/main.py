@@ -26,8 +26,7 @@ load_dotenv()
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
-ending_note = "Powered by DotoBot\nFor command {help.clean_prefix}{help.invoked_with}"
-bot.help_command = PrettyHelp(ending_note=ending_note)
+color = discord.Color.from_rgb(255, 0, 0)
 extensions, deactivated_extensions = [], []
 
 # -------------------------> Client
@@ -37,6 +36,8 @@ extensions, deactivated_extensions = [], []
 @bot.event
 async def on_ready():
 	log.info(f'Logged in as {bot.user}')
+	ending_note = "Powered by " + str(bot.user)[:-5] + "\nFor command {help.clean_prefix}{help.invoked_with}"
+	bot.help_command = PrettyHelp(ending_note=ending_note, color=color, no_category='System')
 
 
 # Triggers on message and reacts accordingly

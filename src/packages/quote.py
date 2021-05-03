@@ -24,7 +24,7 @@ def teardown(bot):
 	log.info('Quotes module has been deactivated')
 
 
-class Quotes(commands.Cog):
+class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.config = self.load_config()
