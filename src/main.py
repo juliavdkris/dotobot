@@ -28,7 +28,7 @@ load_dotenv()
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
 color = discord.Color.from_rgb(255, 0, 0)
-extensions, deactivated_extensions = [], []
+extensions, deactivated_extensions = set(), set()
 
 # -------------------------> Client
 
@@ -49,24 +49,28 @@ async def on_message(msg):
 		await bot.process_commands(msg)
 
 
-@bot.command(brief='Update all modules', description='Update all modules.', usage='')
+@bot.command(brief='Update all modules', description='Update all modules according to the config file.', usage='')
 @commands.has_permissions(administrator=True)
 async def update(ctx):
-	updateable_cogs = ['Homicide', 'Replies', 'Quotes']
-	for cogname in updateable_cogs:
-		if cogname in bot.cogs:
-			await bot.cogs[cogname].update()
 	load_config()
-	for extension in extensions:
-		try:
-			bot.load_extension(extension)
-		except:
-			log.info(f'Module {extension} has already been loaded / does not exist')
-	for extension in deactivated_extensions:
-		try:
-			bot.unload_extension(extension)
-		except:
-			log.info(f'Module {extension} has already been unloaded')
+	for ext in extensions:  # load all modules in config
+		if ext not in bot.extensions:
+			try:
+				bot.load_extension(ext)
+			except Exception as e:
+				log.warning(e)
+
+	for ext in list(bot.extensions.keys()):  # unload all modules not mentioned in active config
+		if ext not in extensions:
+			try:
+				bot.unload_extension(ext)
+				deactivated_extensions.add(ext)
+			except Exception as e:
+				log.warning(e)
+
+	for cog in bot.cogs.values():
+		if hasattr(cog, 'update'):
+			await cog.update()
 
 	await ctx.send('Everything has been updated')
 
@@ -75,15 +79,20 @@ async def update(ctx):
 @commands.has_permissions(administrator=True)
 async def stop(ctx, *args):
 	for arg in args:
-		if (ext := 'packages.' + arg) in extensions:
+		if (ext := 'packages.' + arg) in bot.extensions:
 			bot.unload_extension(ext)
-			deactivated_extensions.append(ext)
-			extensions.remove(ext)
+			deactivated_extensions.add(ext)
+			if ext in extensions:
+				extensions.remove(ext)
 			await ctx.send(f'Module `{ext}` has been deactivated')
 		else:
 			await ctx.send(f'Module `{ext}` not present in the active modules')
 	save_config()
 
+
+@bot.command()
+async def exe(ctx):
+	print(bot.extensions)
 
 @bot.command(brief='Start a specific module', description='Start a specific module.', usage='quote')
 @commands.has_permissions(administrator=True)
@@ -92,7 +101,7 @@ async def start(ctx, *args):
 		ext, e = 'packages.' + arg, None
 		try:
 			bot.load_extension(ext)
-			extensions.append(ext)
+			extensions.add(ext)
 			await ctx.send(f'Module `{ext}` has been activated')
 		except ExtensionNotFound as e:
 			log.warning(e)
@@ -112,14 +121,16 @@ async def start(ctx, *args):
 @bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx, *args):
 	if not args or args[0] == 'all':
-		for extension in extensions:
+		for extension in list(bot.extensions.keys()):
 			bot.reload_extension(extension)
 		await ctx.send('All modules have been reloaded')
 	else:
 		for arg in args:
-			if (ext := 'packages.' + arg) in extensions:
+			if (ext := 'packages.' + arg) in bot.extensions.keys():
 				bot.reload_extension(ext)
 				await ctx.send(f'Module: `{ext}` has been reloaded')
+			else:
+				await ctx.send(f'Module: `{ext}` was not active.')
 
 
 # -------------------------> Helper functions
@@ -130,13 +141,13 @@ def load_config():
 	log.debug(f'config/main.json has been loaded')
 	with open('storage/config/main.json', 'r', encoding='utf-8') as file:
 		config = json.load(file)
-		extensions, deactivated_extensions = config['active_extensions'], config['unactive_extensions']
+		extensions, deactivated_extensions = set(config['active_extensions']), set(config['unactive_extensions'])
 
 
 def save_config():
 	log.debug(f'storage/config/main.json has been saved')
 	with open('storage/config/main.json', 'w', encoding='utf-8') as file:
-		json.dump({'active_extensions': extensions, 'unactive_extensions': deactivated_extensions}, file, sort_keys=True, indent=4)
+		json.dump({'active_extensions': list(extensions), 'unactive_extensions': list(deactivated_extensions)}, file, sort_keys=True, indent=4)
 
 
 # -------------------------> Main
