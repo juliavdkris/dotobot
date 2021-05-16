@@ -40,14 +40,17 @@ class VoicePing(commands.Cog):
 		return True
 
 	# returns the role if it exists otherwise, create the role.
-	async def compute_role_if_absent(self, roleName, guild, suffix=None):
+	async def compute_role_if_absent(self, roleName, guild: discord.Guild, suffix=None):
 		roles = {role.name: role for role in guild.roles}
 		if suffix:
 			roleName = roleName+suffix
 		if roleName in roles:
+			role = roles[roleName]
+			if not role.mentionable:  # clean up unmention-able roles we accidentally created
+				await role.edit(mentionable=True)
 			return roles[roleName]
 		else:
-			return await guild.create_role(name=roleName)
+			return await guild.create_role(name=roleName, mentionable=True)
 
 
 	# figure out if joining or leaving.
