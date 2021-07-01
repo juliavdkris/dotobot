@@ -7,8 +7,10 @@ log = logging.getLogger(__name__)
 # Import libraries
 import discord
 from discord.ext import commands
+from random import choice
 
 # -------------------------> Client
+
 
 
 def setup(bot):
@@ -18,6 +20,15 @@ def setup(bot):
 class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionality'):
 	def __init__(self, bot):
 		self.bot = bot
+
+	@commands.Cog.listener()
+	async def on_ready(self):
+		await self.set_activity(choice([
+			"Error 418 I'm a teapot.",
+			"Malicious bit set to true.",
+			"Listening human music.",
+			"Watching the whole MCU.",
+			"Watching Netlix."]))
 
 	@commands.command(brief='Ping the bot', description='Ping the bot', usage='')
 	async def ping(self, ctx):
@@ -60,9 +71,13 @@ class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionalit
 	@commands.command(brief='Set bot activity', description='Set bot playing, listening, or watching status ', usage='watching netflix')
 	@commands.has_permissions(administrator=True)
 	async def activity(self, ctx, *arg):
-		if arg[0] == 'listening':
-			await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=ctx.message.content[20:]))
-		elif arg[0] == 'watching':
-			await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=ctx.message.content[19:]))
+		await self.set_activity(ctx.message.content[10:])
+
+	async def set_activity(self, msg):
+		command = msg.split()[0].lower()
+		if command == 'listening':
+			await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=msg[10:]))
+		elif command == 'watching':
+			await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=msg[9:]))
 		else:
-			await self.bot.change_presence(activity=discord.Game(name=ctx.message.content[10:]))
+			await self.bot.change_presence(activity=discord.Game(name=msg))
