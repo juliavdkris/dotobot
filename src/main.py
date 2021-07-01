@@ -2,6 +2,8 @@
 
 # Setup python logging
 import logging as log
+
+from discord.ext.commands.core import before_invoke
 log.basicConfig(
     level=log.INFO,  # Basic logging and formatting settings
     format='%(asctime)s [%(levelname)s] @ %(name)s: %(message)s',
@@ -30,7 +32,34 @@ bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
 color = discord.Color.from_rgb(255, 0, 0)
 extensions, deactivated_extensions = set(), set()
 
-# -------------------------> Client
+# -------------------------> Helper functions
+
+
+def load_config():
+	global extensions, deactivated_extensions
+	log.debug(f'config/main.json has been loaded')
+	with open('storage/config/main.json', 'r', encoding='utf-8') as file:
+		config = json.load(file)
+		extensions, deactivated_extensions = set(config['active_extensions']), set(config['unactive_extensions'])
+
+
+def save_config():
+	log.debug(f'storage/config/main.json has been saved')
+	with open('storage/config/main.json', 'w', encoding='utf-8') as file:
+		json.dump({'active_extensions': list(extensions), 'unactive_extensions': list(deactivated_extensions)}, file, sort_keys=True, indent=4)
+
+
+def developerOnly():
+    def predicate(ctx):  # checks if the ID is from someone who should have run-time access
+        return ctx.author.id in [355730172286205954, 228518187778572288]  # TODO not hardcoded
+    return commands.check(predicate)
+
+
+# -------------------------> events
+
+@bot.event
+async def on_command_error(ctx, error):  # can be used for logging future errors
+	pass
 
 
 # Triggers on login and provides info
@@ -49,8 +78,10 @@ async def on_message(msg):
 		await bot.process_commands(msg)
 
 
+# -------------------------> Cog configuration commands
+
+@developerOnly()
 @bot.command(brief='Update all modules', description='Update all modules according to the config file.', usage='')
-@commands.has_permissions(administrator=True)
 async def update(ctx):
 	load_config()
 	for ext in extensions:  # load all modules in config
@@ -75,8 +106,8 @@ async def update(ctx):
 	await ctx.send('Everything has been updated')
 
 
+@developerOnly()
 @bot.command(brief='Stop specific modules', description='Stop specific modules. Can only stop running modules.', usage='quote')
-@commands.has_permissions(administrator=True)
 async def stop(ctx, *args):
 	for arg in args:
 		if (ext := 'packages.' + arg) in bot.extensions:
@@ -90,12 +121,8 @@ async def stop(ctx, *args):
 	save_config()
 
 
-@bot.command()
-async def exe(ctx):
-	print(bot.extensions)
-
+@developerOnly()
 @bot.command(brief='Start a specific module', description='Start a specific module.', usage='quote')
-@commands.has_permissions(administrator=True)
 async def start(ctx, *args):
 	for arg in args:
 		ext, e = 'packages.' + arg, None
@@ -118,6 +145,7 @@ async def start(ctx, *args):
 	save_config()
 
 
+@developerOnly()
 @bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx, *args):
 	if not args or args[0] == 'all':
@@ -133,24 +161,8 @@ async def restart(ctx, *args):
 				await ctx.send(f'Module: `{ext}` was not active.')
 
 
-# -------------------------> Helper functions
-
-
-def load_config():
-	global extensions, deactivated_extensions
-	log.debug(f'config/main.json has been loaded')
-	with open('storage/config/main.json', 'r', encoding='utf-8') as file:
-		config = json.load(file)
-		extensions, deactivated_extensions = set(config['active_extensions']), set(config['unactive_extensions'])
-
-
-def save_config():
-	log.debug(f'storage/config/main.json has been saved')
-	with open('storage/config/main.json', 'w', encoding='utf-8') as file:
-		json.dump({'active_extensions': list(extensions), 'unactive_extensions': list(deactivated_extensions)}, file, sort_keys=True, indent=4)
-
-
 # -------------------------> Main
+
 if __name__ == '__main__':
 	load_config()
 	for extension in extensions:
