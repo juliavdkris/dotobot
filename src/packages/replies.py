@@ -36,8 +36,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
-	async def flag_checker(self, content):
-		content = content.split(' ')
+	def mod_abuse_detector(self, content):
 		mod_flag, abuse_flag = False, False
 		for mod in self.config['peace_items'][0]:
 			if mod in content:
@@ -45,27 +44,22 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		for abuse in self.config['peace_items'][1]:
 			if abuse in content:
 				abuse_flag = True
-		return (abuse_flag + mod_flag)
+		return abuse_flag and mod_flag
 
-	async def peace_in_our_time(self, content, msg):
-		flag = await self.flag_checker(content)
-		if flag == 0:
-			return False
-		elif flag == 2:
-			await msg.delete()
+	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}):
+		if self.mod_abuse_detector(content):
 			await msg.channel.send(choice(self.config['peace_reactions']))
+			await msg.delete()
 			return True
-		try:
-			log.debug('waiting on multi line parse')
-			msg2 = await self.bot.wait_for('message', check=lambda message: message.author == msg.author, timeout=15)
-			content += ' ' + msg2.content.lower()
-			if await self.flag_checker(content) == 2:
-				await msg.delete()
+		previous = previousMessages[msg.author.id] if msg.author.id in previousMessages else None
+		if previous:
+			if self.mod_abuse_detector(content + ' ' + previous.content.lower()):
 				await msg.channel.send(choice(self.config['peace_reactions']))
-				await msg2.delete()
+				await msg.delete()
+				await previous.delete()
+				del previousMessages[msg.author.id]
 				return True
-		except:
-			pass
+		previousMessages[msg.author.id] = msg
 		return False
 
 	async def update(self):
