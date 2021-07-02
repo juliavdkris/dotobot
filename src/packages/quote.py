@@ -2,10 +2,13 @@
 
 # Setup python logging
 import logging
+
+from main import start
 log = logging.getLogger(__name__)
 
 # Import libraries
 import discord
+from discord import Colour
 from discord.ext import commands
 import json
 from random import choice
@@ -59,17 +62,28 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 		return
 
 	async def mass_quote(self, ctx, quotes):
-		quotes = sorted(quotes, key=lambda i: i['id'])
-		quote_brackets, qmsg = '```', '```'
+		colours = [Colour.from_rgb(255,0,0), Colour.orange(), Colour.gold(), Colour.green(), Colour.blue(), Colour.dark_blue(), Colour.purple()]
+		quotes, qmsg = sorted(quotes, key=lambda i: i['id']), ''
 		if len(quotes) == 0:
-			await ctx.send('No entries match the search')
+			return await ctx.send(embed = discord.Embed(title="No quotes could be found", description="Try a different search term or submit your own using !q add", color=colours[0]))
+
+		startingid, colourCounter = quotes[0]['id'], 0
 		for quote in quotes:
 			text_quote = f"{quote['id']}: \"{quote['quote']}\" - {quote['author']}\n"
-			if len(qmsg) + len(text_quote) >= 1990:  # leave some space for the ```
-				await ctx.send(qmsg + quote_brackets)
-				qmsg = quote_brackets
+			if len(qmsg) + len(text_quote) >= 1024:
+				await self.mass_quote_embed(ctx, msg=qmsg, quoteRange=(startingid, previousid), colour=colours[colourCounter % len(colours)])
+				qmsg, startingid, colourCounter = '', quote['id'], colourCounter + 1
+
 			qmsg += text_quote
-		await ctx.send(qmsg + quote_brackets)
+			previousid = quote['id']
+		await self.mass_quote_embed(ctx, msg=qmsg, quoteRange=(startingid, previousid), colour=colours[colourCounter % len(colours)])
+
+	async def mass_quote_embed(self, ctx, msg, quoteRange: tuple[str, str], colour = None):
+		embed = discord.Embed(title="Quotes",description=f"Quotes from {quoteRange[0]}:{quoteRange[1]}", colour = colour)
+		embed.add_field(name="Found", value=msg, inline=False)
+		embed.set_footer(text=f"Powered by {self.bot.user.name}")
+		await ctx.send(embed=embed)
+
 
 	async def update(self):
 		self.config = self.load_config()
@@ -77,6 +91,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	@commands.group(aliases=['quote'], brief='Subgroup for quote functionality', description='Subgroup for quote functionality. Use !help q')
 	async def q(self, ctx):
+
 		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
 				json.dump({}, file, indent=4)
