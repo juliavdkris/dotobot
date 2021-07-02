@@ -62,25 +62,31 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 		return
 
 	async def mass_quote(self, ctx, quotes):
-		colours = [Colour.from_rgb(255,0,0), Colour.orange(), Colour.gold(), Colour.green(), Colour.blue(), Colour.dark_blue(), Colour.purple()]
 		quotes, qmsg = sorted(quotes, key=lambda i: i['id']), ''
 		if len(quotes) == 0:
-			return await ctx.send(embed = discord.Embed(title="No quotes could be found", description="Try a different search term or submit your own using !q add", color=colours[0]))
+			return await ctx.send(embed = discord.Embed(title="No quotes could be found", description="Try a different search term or submit your own using !q add", color=Colour.from_rgb(255,0,0)))
 
 		startingid, colourCounter = quotes[0]['id'], 0
-		for quote in quotes:
+		quoteAbles = []
+		for quote in quotes:  # split quotes up into fields for the embed
 			text_quote = f"{quote['id']}: \"{quote['quote']}\" - {quote['author']}\n"
-			if len(qmsg) + len(text_quote) >= 1024:
-				await self.mass_quote_embed(ctx, msg=qmsg, quoteRange=(startingid, previousid), colour=colours[colourCounter % len(colours)])
-				qmsg, startingid, colourCounter = '', quote['id'], colourCounter + 1
+			if len(qmsg) + len(text_quote) >= 975:
+				quoteAbles.append({"msg": qmsg, "start": startingid, "prev": previousid})
+				qmsg, startingid = '', quote['id']
+			qmsg, previousid = qmsg + text_quote, quote['id']
 
-			qmsg += text_quote
-			previousid = quote['id']
-		await self.mass_quote_embed(ctx, msg=qmsg, quoteRange=(startingid, previousid), colour=colours[colourCounter % len(colours)])
+		quoteAbles.append({"msg": qmsg, "start": startingid, "prev": previousid})
+		await self.mass_quote_embed(ctx, quoteAbles)
 
-	async def mass_quote_embed(self, ctx, msg, quoteRange: tuple[str, str], colour = None):
-		embed = discord.Embed(title="Quotes",description=f"Quotes from {quoteRange[0]}:{quoteRange[1]}", colour = colour)
-		embed.add_field(name="Found", value=msg, inline=False)
+	async def mass_quote_embed(self, ctx, quoteFields):
+		colours = [Colour.from_rgb(255,0,0), Colour.orange(), Colour.gold(), Colour.green(), Colour.blue(), Colour.dark_blue(), Colour.purple()]
+		embed = discord.Embed(title="Quotes", colour = colours[0])
+		for index, value in enumerate(quoteFields):
+			if index % 6 == 0 and index != 0:
+				embed.set_footer(text=f"Powered by {self.bot.user.name}")
+				await ctx.send(embed=embed)
+				embed = discord.Embed(title="Quotes", colour = colours[(index // 6) % len(colours)])
+			embed.add_field(name=f"Quotes {value['start']} : {value['prev']}", value=value['msg'], inline=False)
 		embed.set_footer(text=f"Powered by {self.bot.user.name}")
 		await ctx.send(embed=embed)
 
