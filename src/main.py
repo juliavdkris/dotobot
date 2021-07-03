@@ -18,7 +18,6 @@ from pretty_help import PrettyHelp
 from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
 
 from os import getenv
-import os.path
 import json
 from dotenv import load_dotenv
 load_dotenv()

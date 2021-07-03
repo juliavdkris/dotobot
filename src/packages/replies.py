@@ -11,7 +11,6 @@ import json
 from random import choice
 import re
 import asyncio
-import os.path
 
 # -------------------------> Main
 

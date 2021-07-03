@@ -3,7 +3,6 @@
 # Setup python logging
 import logging
 
-from main import start
 log = logging.getLogger(__name__)
 
 # Import libraries
