@@ -5,7 +5,6 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
-import discord
 from discord.ext import commands
 
 from itertools import product
