@@ -11,3 +11,7 @@ __pycache__/
 
 # Bot files
 storage/
+
+# Venv
+Pipfile
+Pipfile.lock

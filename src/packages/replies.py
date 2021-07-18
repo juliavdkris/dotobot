@@ -31,7 +31,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		self.f_flag = True
 
 	def load_config(self):
-		log.debug(f'config/replies.json has been loaded')
+		log.debug('config/replies.json has been loaded')
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 

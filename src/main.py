@@ -56,9 +56,10 @@ def developerOnly():
 
 # -------------------------> events
 
+# Triggers on command execution error
 @bot.event
-async def on_command_error(ctx, error):  # can be used for logging future errors
-	pass
+async def on_command_error(ctx, error):
+	log.error(error)
 
 
 # Triggers on login and provides info
