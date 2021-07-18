@@ -15,7 +15,6 @@ def setup(bot):
 	log.info('Die module has been activated')
 	bot.add_cog(Die(bot))
 
-
 def teardown(bot):
 	log.info('Die module has been deactivated')
 
@@ -23,7 +22,6 @@ class Die(commands.Cog, name='RNG', description='Simulate dice throws'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.functions = {}
-
 
 	@commands.command(brief='Roll a D6', description='Returns a dice with 1-6 eyes', usage='')
 	async def roll(self,ctx):

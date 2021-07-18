@@ -5,7 +5,8 @@
 		"packages.miscellaneous",
 		"packages.quote",
 		"packages.replies",
-		"packages.vcPing"
+		"packages.vcPing",
+		"packages.steam"
 	],
 	"unactive_extensions": []
 }
