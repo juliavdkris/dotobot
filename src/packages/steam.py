@@ -5,9 +5,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
-import discord
-from discord.ext import commands
+from steam import steamid
 from steam.webapi import WebAPI
+from discord.ext import commands
 from fuzzywuzzy import process
 
 import json
@@ -28,18 +28,39 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     def __init__(self, bot):
         self.bot = bot
         self.users = self.load_config()
-        self.steam_api = WebAPI(key=getenv('STEAM_KEY')) # maybe throw this in config
+        self.steam_api = WebAPI(key=getenv('STEAM_KEY'))
 
+    # Dumps config into self.users
     def load_config(self):
         log.debug('config/users.json has been loaded')
         with open('storage/config/users.json', 'r', encoding='utf-8') as file:
             return json.load(file)
 
+    # Dumps self.users into config
+    def update_config(self):
+        log.debug('config/users.json has been updated')
+        with open('storage/config/users.json', 'w', encoding='utf-8') as file:
+            json.dump(self.users, file, indent=4)
+
+    # Matches userinput to find a game in steamlibrary and pings other users that have that game
     @commands.command(brief='Invite people to play a game', description='Scans Steam inventories for people to play games with', usage='[game]')
     async def letsplay(self, ctx: commands.Context, *, game_name: str):
         log.info(f'Received letsplay command from user {ctx.author.name}')
 
-        
+        # Check if user is known
+        if str(ctx.author.id) not in self.users.keys():
+            await ctx.send('I dont know your steamID yet! What is your steamprofile URL?')
+            while True:
+                url = await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author, timeout=180)
+                steam_id = steamid.steam64_from_url(url.content)
+
+                if steam_id != None or url.content == 'go away':
+                    break
+                await ctx.send('That was not a valid url... Please try again or type `go away`')
+            
+            self.users[str(ctx.author.id)] = { "steam_id": str(steam_id) }
+            self.update_config()
+                
         # Fetch caller inventory
         games = self.steam_api.call(
             'IPlayerService.GetOwnedGames',
@@ -54,19 +75,12 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
         target_game = process.extractOne(
             query={ 'name': game_name },
             choices=games,
-            processor=lambda x: x['name'].lower(),
-            score_cutoff=75
+            processor=lambda x: x['name'].lower()
         )
 
         # If no matches found
-        if target_game == None:
-            similar = process.extractOne(
-                query={ 'name': game_name },
-                choices=games,
-                processor=lambda x: x['name'].lower()
-            )[0]['name']
-
-            await ctx.send(f'No such games found in your library! Did you mean {similar}?')
+        if target_game[1] < 75:
+            await ctx.send(f'No such games found in your library! Did you mean {target_game[0]["name"]}?')
 
         # Else ping others
         else:
@@ -83,9 +97,6 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                 )['response']['games']
 
                 if target_game[0]['appid'] in [game['appid'] for game in games]:
-                    message += f"<@!{discord_id}> "
+                    message += f"<@!{discord_id}>"
             
             await ctx.send(message)
-
-
-

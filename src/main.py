@@ -50,7 +50,7 @@ def save_config():
 
 def developerOnly():
     def predicate(ctx):  # checks if the ID is from someone who should have run-time access
-        return ctx.author.id in [355730172286205954, 228518187778572288]  # TODO not hardcoded
+        return ctx.author.id in [355730172286205954, 228518187778572288, 282961927657750528]  # TODO not hardcoded
     return commands.check(predicate)
 
 
