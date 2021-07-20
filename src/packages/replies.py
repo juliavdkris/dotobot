@@ -15,17 +15,17 @@ import asyncio
 # -------------------------> Main
 
 
-def setup(bot):
+def setup(bot: commands.Bot) -> None:
 	log.info('Replies module has been activated')
 	bot.add_cog(Replies(bot))
 
 
-def teardown(bot):
+def teardown(bot: commands.Bot) -> None:
 	log.info('Replies module has been deactivated')
 
 
 class Replies(commands.Cog, description='Module that replies to you in chat'):
-	def __init__(self, bot):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = self.load_config()
 		self.f_flag = True
@@ -35,7 +35,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
-	def mod_abuse_detector(self, content):
+	def mod_abuse_detector(self, content: str) -> bool:
 		mod_flag, abuse_flag = False, False
 		for mod in self.config['peace_items'][0]:
 			if mod in content:
@@ -45,7 +45,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 				abuse_flag = True
 		return abuse_flag and mod_flag
 
-	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}):
+	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}) -> bool:
 		if self.mod_abuse_detector(content):
 			await msg.channel.send(choice(self.config['peace_reactions']))
 			await msg.delete()
@@ -61,13 +61,13 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		previousMessages[msg.author.id] = msg
 		return False
 
-	async def update(self):
+	async def update(self) -> None:
 		self.config = self.load_config()
 		self.f_flag = True
 		log.info(f'Replies ran an update')
 
 	@commands.Cog.listener()
-	async def on_message(self, msg):
+	async def on_message(self, msg: discord.Message) -> None:
 		if msg.author.id != self.bot.user.id:
 			msgcontent, c = msg.content.lower(), msg.channel
 			if await self.peace_in_our_time(msgcontent, msg):  # corresponding message was deleted no need for reactions. command can still be executed :/
@@ -105,6 +105,6 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 				pass
 
 	@commands.command(brief='What', description='What', usage='')
-	async def what(self, ctx):
+	async def what(self, ctx: commands.Context) -> None:
 		with open('storage/static/what.png', 'br') as fp:
 			await ctx.send(file=discord.File(fp, 'what.png'))

@@ -6,7 +6,7 @@ import logging as log
 from discord.ext.commands.core import before_invoke
 log.basicConfig(
     level=log.INFO,  # Basic logging and formatting settings
-    format='%(asctime)s [%(levelname)s] @ %(name)s: %(message)s',
+    format='%(asctime)s [%(levelname)8s] @ %(name)-20s: %(message)s',
     datefmt='%d/%m/%y %H:%M:%S',
     filename='storage/discord.log',  # File settings
     filemode='w',
@@ -34,7 +34,7 @@ extensions, deactivated_extensions = set(), set()
 # -------------------------> Helper functions
 
 
-def load_config():
+def load_config() -> None:
 	global extensions, deactivated_extensions
 	log.debug(f'config/main.json has been loaded')
 	with open('storage/config/main.json', 'r', encoding='utf-8') as file:
@@ -42,7 +42,7 @@ def load_config():
 		extensions, deactivated_extensions = set(config['active_extensions']), set(config['unactive_extensions'])
 
 
-def save_config():
+def save_config() -> None:
 	log.debug(f'storage/config/main.json has been saved')
 	with open('storage/config/main.json', 'w', encoding='utf-8') as file:
 		json.dump({'active_extensions': list(extensions), 'unactive_extensions': list(deactivated_extensions)}, file, sort_keys=True, indent=4)
@@ -58,13 +58,13 @@ def developerOnly():
 
 # Triggers on command execution error
 @bot.event
-async def on_command_error(ctx, error):
-	log.error(error)
+async def on_command_error(ctx: commands.Context, error):  # can be used for logging future errors
+	pass
 
 
 # Triggers on login and provides info
 @bot.event
-async def on_ready():
+async def on_ready() -> None:
 	log.info(f'Logged in as {bot.user}')
 	ending_note = f'Powered by {bot.user.name}\nFor command {{help.clean_prefix}}{{help.invoked_with}}'
 	bot.help_command = PrettyHelp(ending_note=ending_note, color=color, no_category='System')
@@ -72,7 +72,7 @@ async def on_ready():
 
 # Triggers on message and reacts accordingly
 @bot.event
-async def on_message(msg):
+async def on_message(msg: discord.Message) -> None:
 	if msg.author.id != bot.user.id:
 		log.debug(f'Message from {msg.author}: {msg.content}')
 		await bot.process_commands(msg)
@@ -82,7 +82,7 @@ async def on_message(msg):
 
 @developerOnly()
 @bot.command(brief='Update all modules', description='Update all modules according to the config file.', usage='')
-async def update(ctx):
+async def update(ctx: commands.Context) -> None:
 	load_config()
 	for ext in extensions:  # load all modules in config
 		if ext not in bot.extensions:
@@ -108,7 +108,7 @@ async def update(ctx):
 
 @developerOnly()
 @bot.command(brief='Stop specific modules', description='Stop specific modules. Can only stop running modules.', usage='quote')
-async def stop(ctx, *args):
+async def stop(ctx: commands.Context, *args) -> None:
 	for arg in args:
 		if (ext := 'packages.' + arg) in bot.extensions:
 			bot.unload_extension(ext)
@@ -123,7 +123,7 @@ async def stop(ctx, *args):
 
 @developerOnly()
 @bot.command(brief='Start a specific module', description='Start a specific module.', usage='quote')
-async def start(ctx, *args):
+async def start(ctx: commands.Context, *args) -> None:
 	for arg in args:
 		ext, e = 'packages.' + arg, None
 		try:
@@ -147,7 +147,7 @@ async def start(ctx, *args):
 
 @developerOnly()
 @bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
-async def restart(ctx, *args):
+async def restart(ctx: commands.Context, *args) -> None:
 	if not args or args[0] == 'all':
 		for extension in list(bot.extensions.keys()):
 			bot.reload_extension(extension)
