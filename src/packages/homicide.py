@@ -10,17 +10,17 @@ from discord.ext import commands
 import json
 import asyncio
 from copy import deepcopy
+from os.path import basename
 
 # -------------------------> Main
 
 
 def setup(bot: commands.Bot) -> None:
-	log.info('Homicide module has been activated')
 	bot.add_cog(Homicide(bot))
-
+	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info('Homicide module has been deactivated')
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote or command'):

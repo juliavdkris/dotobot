@@ -6,7 +6,7 @@ import logging as log
 from discord.ext.commands.core import before_invoke
 log.basicConfig(
     level=log.INFO,  # Basic logging and formatting settings
-    format='%(asctime)s [%(levelname)8s] @ %(name)-20s: %(message)s',
+    format='%(asctime)s [%(levelname)8s] @ %(name)-18s: %(message)s',
     datefmt='%d/%m/%y %H:%M:%S',
     filename='storage/discord.log',  # File settings
     filemode='w',

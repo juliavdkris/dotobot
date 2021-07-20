@@ -8,19 +8,19 @@ log = logging.getLogger(__name__)
 import discord
 from discord.ext import commands
 from os import getenv
+from os.path import basename
 from asyncio import sleep
 from random import randint
 from dotenv import load_dotenv
 load_dotenv()
 
 
-def setup(bot):
-	log.info('Voice module has been activated')
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Voice(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-
-def teardown(bot):
-	log.info('Voice module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Voice(commands.Cog, description='Play music in voice'):

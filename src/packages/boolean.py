@@ -9,18 +9,17 @@ from discord.ext import commands
 
 from itertools import product
 from copy import deepcopy
+from os.path import basename
 
 # -------------------------> Main
 
 
-def setup(bot):
-	log.info('Boolean module has been activated')
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Boolean(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-
-def teardown(bot):
-	log.info('Boolean module has been deactivated')
-
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 class Boolean(commands.Cog, description='Boolean logic module'):
 	def __init__(self, bot):
