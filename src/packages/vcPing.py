@@ -10,21 +10,21 @@ lock = threading.RLock()
 
 vc_suffix = '-VC'
 
-def setup(bot):
+def setup(bot: commands.Bot):
 	log.info('VoicePing module has been activated')
 	bot.add_cog(VoicePing(bot))
 
 
-def teardown(bot):
+def teardown(bot: commands.Bot):
 	log.info('VoicePing module has been deactivated')
 
 
 class VoicePing(commands.Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 
 	# remove all VC roles for which no VC exists.
-	async def clean_up(self, guild):
+	async def clean_up(self, guild: discord.Guild) -> None:
 		roles = {role.name: role for role in guild.roles}
 		vc_channels = [vc.name for vc in guild.voice_channels]
 		for role_name in roles:
@@ -32,7 +32,7 @@ class VoicePing(commands.Cog):
 				await roles[role_name].delete(reason=f'Role {role_name} out of date and deleted')
 
 	# only vc_channels have a bitrate attribute
-	def is_vc(self, channel):
+	def is_vc(self, channel: discord.abc.GuildChannel) -> bool:
 		try:
 			x = channel.bitrate
 		except:
@@ -40,7 +40,7 @@ class VoicePing(commands.Cog):
 		return True
 
 	# returns the role if it exists otherwise, create the role.
-	async def compute_role_if_absent(self, roleName, guild: discord.Guild, suffix=None):
+	async def compute_role_if_absent(self, roleName: str, guild: discord.Guild, suffix=None) -> discord.Role:
 		roles = {role.name: role for role in guild.roles}
 		if suffix:
 			roleName = roleName+suffix
@@ -50,12 +50,12 @@ class VoicePing(commands.Cog):
 				await role.edit(mentionable=True)
 			return roles[roleName]
 		else:
-			return await guild.create_role(name=roleName, mentionable=True)
+			return await guild.create_role(name=roleName, mentionable=True, reason="Detected a VC which does not have a role.")
 
 
 	# figure out if joining or leaving.
 	@commands.Cog.listener()
-	async def on_voice_state_update(self, member, before, after):
+	async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None:
 		guild = member.guild
 
 		if after.channel:
@@ -74,7 +74,7 @@ class VoicePing(commands.Cog):
 
 	# figure out if vc or text, if vc look for a role and update.
 	@commands.Cog.listener()
-	async def on_guild_channel_update(self, before, after):
+	async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel) -> None:
 		guild = after.guild
 		if not self.is_vc(after):
 			return
@@ -84,11 +84,11 @@ class VoicePing(commands.Cog):
 				role = roles[role_name]
 				break
 		with lock:
-			await role.edit(name=(after.name+vc_suffix))
+			await role.edit(name=(after.name+vc_suffix), reason="Updated VC role in accordance to a channel name change.")
 
 	# delete the role if it exists
 	@commands.Cog.listener()
-	async def on_guild_channel_delete(self, channel):
+	async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel) -> None:
 		guild = channel.guild
 		if not self.is_vc(channel):
 			return
