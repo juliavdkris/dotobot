@@ -1,18 +1,13 @@
-# -------------------------> Dependencies
-
-# Setup python logging
 import logging
-log = logging.getLogger(__name__)
+from os.path import basename
+from random import choice
 
-# Import libraries
 import discord
 from discord.ext import commands
-from random import choice
-from os.path import basename
 
-# -------------------------> Client
+# -------------------------> Main
 
-
+log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Miscellaneous(bot))

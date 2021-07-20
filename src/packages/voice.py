@@ -1,17 +1,16 @@
-# -------------------------> Dependencies
-
-# Setup python logging
 import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-import discord
-from discord.ext import commands
+from asyncio import sleep
 from os import getenv
 from os.path import basename
-from asyncio import sleep
 from random import randint
+
+import discord
+from discord.ext import commands
 from dotenv import load_dotenv
+
+# -------------------------> Main
+
+log = logging.getLogger(__name__)
 load_dotenv()
 
 

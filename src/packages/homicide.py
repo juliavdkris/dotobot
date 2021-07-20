@@ -1,19 +1,15 @@
-# -------------------------> Dependencies
-
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-import discord
-from discord.ext import commands
-import json
 import asyncio
+import json
+import logging
 from copy import deepcopy
 from os.path import basename
 
+import discord
+from discord.ext import commands
+
 # -------------------------> Main
 
+log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Homicide(bot))

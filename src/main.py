@@ -1,9 +1,17 @@
-# -------------------------> Dependencies
-
-# Setup python logging
+import json
 import logging as log
+from copy import copy
+from os import getenv
 
+import discord
+from discord.ext import commands
 from discord.ext.commands.core import before_invoke
+from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
+from dotenv import load_dotenv
+from pretty_help import PrettyHelp
+
+# -------------------------> Globals
+
 log.basicConfig(
     level=log.INFO,  # Basic logging and formatting settings
     format='%(asctime)s [%(levelname)8s] @ %(name)-18s: %(message)s',
@@ -12,21 +20,7 @@ log.basicConfig(
     filemode='w',
     encoding='utf-8'
 )
-
-# Import libraries
-import discord
-from discord.ext import commands
-from pretty_help import PrettyHelp
-from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
-
-from copy import copy
-from os import getenv
-import json
-from dotenv import load_dotenv
 load_dotenv()
-
-# -------------------------> Globals
-
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
 color = discord.Color.from_rgb(255, 0, 0)
