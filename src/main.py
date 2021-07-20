@@ -19,6 +19,7 @@ from discord.ext import commands
 from pretty_help import PrettyHelp
 from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
 
+from copy import copy
 from os import getenv
 import json
 from dotenv import load_dotenv
@@ -165,6 +166,12 @@ async def restart(ctx: commands.Context, *args) -> None:
 
 if __name__ == '__main__':
 	load_config()
-	for extension in extensions:
-		bot.load_extension(extension)
+	for extension in copy(extensions):
+		try:
+			bot.load_extension(extension)
+		except:
+			log.warning(f"Could not be activated: {extension}")
+			extensions.remove(extension)
+			deactivated_extensions.add(extension)
+	save_config()
 	bot.run(getenv('TOKEN'))
