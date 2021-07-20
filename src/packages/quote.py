@@ -13,18 +13,18 @@ import json
 from random import choice
 import re
 from os import path
+from os.path import basename
 from typing import Tuple, Union, Dict, List
 
 # -------------------------> Main
 
 
 def setup(bot: commands.Bot) -> None:
-	log.info('Quotes module has been activated')
 	bot.add_cog(Quotes(bot))
-
+	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info('Quotes module has been deactivated')
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):

@@ -8,6 +8,7 @@ log = logging.getLogger(__name__)
 import discord
 from discord.ext import commands
 from random import choice
+from os.path import basename
 
 # -------------------------> Client
 
@@ -15,10 +16,10 @@ from random import choice
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Miscellaneous(bot))
-	log.info('Module has been activated: Misc')
+	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info('Module has been de-activated: Misc')
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionality'):

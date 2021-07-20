@@ -11,17 +11,17 @@ import json
 from random import choice
 import re
 import asyncio
+from os.path import basename
 
 # -------------------------> Main
 
 
 def setup(bot: commands.Bot) -> None:
-	log.info('Replies module has been activated')
 	bot.add_cog(Replies(bot))
-
+	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info('Replies module has been deactivated')
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Replies(commands.Cog, description='Module that replies to you in chat'):

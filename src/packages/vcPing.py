@@ -4,19 +4,18 @@ log = logging.getLogger(__name__)
 
 import discord
 from discord.ext import commands
-
+from os.path import basename
 import threading
 lock = threading.RLock()
 
 vc_suffix = '-VC'
 
-def setup(bot: commands.Bot):
-	log.info('VoicePing module has been activated')
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(VoicePing(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-
-def teardown(bot: commands.Bot):
-	log.info('VoicePing module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class VoicePing(commands.Cog):
