@@ -5,7 +5,6 @@ from os import getenv
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.core import before_invoke
 from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -20,6 +19,7 @@ log.basicConfig(
     filemode='w',
     encoding='utf-8'
 )
+log.getLogger('discord').setLevel('WARNING')  # hide info logs that the discord module sents
 load_dotenv()
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
@@ -51,6 +51,15 @@ def developerOnly():
 
 # -------------------------> events
 
+@bot.before_invoke
+async def logging(ctx: commands.Context):
+	if not ctx.invoked_subcommand:
+		commandlog = log.getLogger('command.invoke')
+		if log.root.level != log.DEBUG:
+			commandlog.info (f"{ctx.author.name.ljust(16,' ')} | called: {str(ctx.command)}")
+		else:
+			commandlog.debug(f"{ctx.author.name.ljust(16,' ')} | called: {str(ctx.command).ljust(12,' ')} | with: {ctx.message.content}")
+
 # Triggers on command execution error
 @bot.event
 async def on_command_error(ctx: commands.Context, error):  # can be used for logging future errors
@@ -69,7 +78,8 @@ async def on_ready() -> None:
 @bot.event
 async def on_message(msg: discord.Message) -> None:
 	if msg.author.id != bot.user.id:
-		log.debug(f'Message from {msg.author}: {msg.content}')
+		msglog = log.getLogger('message.reader')
+		msglog.debug(f"{msg.author.name.ljust(16,' ')} | with:  {msg.content}")
 		await bot.process_commands(msg)
 
 

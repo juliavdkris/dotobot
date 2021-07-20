@@ -44,7 +44,7 @@ class Boolean(commands.Cog, description='Boolean logic module'):
 	# Clears all expressions
 	@b.command(brief='Clear boolean memory', description='Clear boolean memory.', usage='')
 	async def clear(self, ctx):
-		log.info(f'Recieved \'!b clear\' command from user \'{ctx.author.name}\'')
+		log.debug(f'Recieved \'!b clear\' command from user \'{ctx.author.name}\'')
 
 		self.functions = {}
 
@@ -53,7 +53,7 @@ class Boolean(commands.Cog, description='Boolean logic module'):
 	# Set a bool variable to a expression parsed into a statement
 	@b.command(brief='Set a boolean value', description='Set a boolean value.', usage='x a^b')
 	async def set(self, ctx, name: str, *, expr: str):
-		log.info(f'Recieved \'!b set\' command from user \'{ctx.author.name}\'')
+		log.debug(f'Recieved \'!b set\' command from user \'{ctx.author.name}\'')
 
 		alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 		variable = False
@@ -108,7 +108,7 @@ class Boolean(commands.Cog, description='Boolean logic module'):
 	# Display the properties of a bool variable
 	@b.command(brief='Show a boolean statement', description='Show a boolean statement.', usage='x')
 	async def view(self, ctx, target: str):
-		log.info(f'Recieved \'!b view\' command from user \'{ctx.author.name}\'')
+		log.debug(f'Recieved \'!b view\' command from user \'{ctx.author.name}\'')
 		if target == 'all':
 
 			# Construct message
@@ -147,7 +147,7 @@ class Boolean(commands.Cog, description='Boolean logic module'):
 	# Display the truth table of any number of expressions
 	@b.command(brief='Display a truth table', description='Display the truth table of any number of expressions.', usage='x y')
 	async def table(self, ctx, *, targets: str):
-		log.info(f'Recieved \'!b table\' command from user \'{ctx.author.name}\'')
+		log.debug(f'Recieved \'!b table\' command from user \'{ctx.author.name}\'')
 
 		functions = {}
 		superset = []
@@ -211,7 +211,7 @@ class Boolean(commands.Cog, description='Boolean logic module'):
 	# Display the k-map of target expressions
 	@b.command(brief='Display a k-map', description='Display the k-map of target expressions.', usage='x y')
 	async def kmap(self, ctx, target: str):
-		log.info(f'Recieved \'!b kmap\' command from user \'{ctx.author.name}\'')
+		log.debug(f'Recieved \'!b kmap\' command from user \'{ctx.author.name}\'')
 
 		# Check for command validity
 		if target not in self.functions:  # Check the existence of provided name
