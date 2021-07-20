@@ -95,10 +95,8 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
 				json.dump({}, file, indent=4)
 		if ctx.invoked_subcommand is None:
-			log.info(f'QUOTE User {ctx.author.name} has passed an invalid quote subcommand: {ctx.message.content}')
+			log.debug(f'QUOTE User {ctx.author.name} has passed an invalid quote subcommand: {ctx.message.content}')
 			await self.quote(ctx, ctx.message.content)
-		else:
-			log.info(f'QUOTE User {ctx.author.name} has called command:{ctx.invoked_subcommand}')
 
 	@q.command(brief='Add a quote', description='Add a quote to the database', usage='"quote" - author')
 	async def add(self, ctx: commands.Context, *, args=None) -> None:
@@ -115,7 +113,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 			json.dump(quotes, file, indent=4)
 			file.truncate()
 
-		log.info(f"QUOTE has been added; {nextid}: \"{quote}\" - {author}")
+		log.debug(f"QUOTE has been added; {nextid}: \"{quote}\" - {author}")
 		await ctx.send(f'Quote added. Assigned ID: {nextid}')
 
 	@q.command(aliases=['del', 'delete'], brief='remove a quote', description='Remove a quote from the database by id.', usage='123')
@@ -170,16 +168,16 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 	async def search(self, ctx: commands.Context, *, args) -> None:
 		quotes, found_quotes = self.load_quotes(str(ctx.guild.id)), []
 
-		log.info(f'QUOTE search with following parameters: {args}')
+		log.debug(f'QUOTE search with following parameters: {args}')
 		search_request = args.split()[0].lower() if args.split()[0].lower() in ['quote', 'author'] else None
 		if search_request:
-			log.info(f'searching through {search_request}s')
+			log.debug(f'searching through {search_request}s')
 			search_key = ' '.join(args.split()[1:]).lower()
 			for quote in quotes:
 				if search_key in quotes[quote][search_request].lower():
 					found_quotes.append(quotes[quote])
 		else:
-			log.info('searching through entire quote object')
+			log.debug('searching through entire quote object')
 			search_key = args.lower()
 			for quote in quotes:
 				if search_key in quotes[quote]['quote'].lower() + quotes[quote]['author'].lower():

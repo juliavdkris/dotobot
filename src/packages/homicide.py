@@ -45,7 +45,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			rdb = json.load(file)
 			if not guild_id in rdb:
-				log.info(f'Added {guild_id} server id to the role database')
+				log.debug(f'Added {guild_id} server id to the role database')
 				rdb[guild_id] = {}
 			rdb[guild_id][str(target_user.id)] = {'nick': target_user.nick, 'roles': [role.id for role in target_user.roles][1:]}
 			file.seek(0)
@@ -117,7 +117,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 	@commands.command(brief='Insta kick someone', description='Insta kick one or multiple people as an administrator by tagging them.', usage='@bad-person')
 	@commands.has_role('admin')
 	async def murder(self, ctx: commands.Context, *users: discord.Member) -> None:  # murder now supports multiple arguments
-		log.info(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
+		log.debug(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
 		tasks = []
 		for user in users:
 			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
@@ -125,13 +125,13 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 
 	@commands.command(brief='Temp ban yourself', description='Temp ban yourself. To save face one might commit the ritual of seppuku', usage='')
 	async def suicide(self, ctx) -> None:
-		log.info('SUICIDE: {ctx.author.name} Has committed suicide')
+		log.debug('SUICIDE: {ctx.author.name} Has committed suicide')
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
 	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person')
 	async def lynch(self, ctx: commands.Context, *users: discord.Member) -> None:  # and if murder does then so shall lynch
-		log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
+		log.debug(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
 		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
@@ -142,7 +142,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 	@commands.command(brief='Vote to tempban an entire role.', description='Vote to tempban an entire role.', usage='@leaflovers')
 	async def genocide(self, ctx: commands.Context, *role: discord.Role) -> None:  # when the tensions get high
 		role = role[0]
-		log.info(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
+		log.debug(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
 		if role == ctx.guild.roles[0]:
 			await ctx.send("I mean, I don't judge but someone will.")
 			return
@@ -158,7 +158,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		user = users[0]
 		msg = await ctx.send(f'Damn people really wanna shut up {user.name}.\nYour say.')
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['mute_votes']):
-			log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {user.name} which passed")
+			log.info(f"SILENCE: {ctx.author.name} has called a lynch on: {user.name} which passed")
 			await ctx.send('Now playing: The sound of silence')
 			await user.edit(mute=True)
 			await asyncio.sleep(self.config['mute_timeout'])
