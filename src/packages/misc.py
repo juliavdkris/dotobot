@@ -32,7 +32,7 @@ class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionalit
 
 	@commands.command(brief='Ping the bot', description='Ping the bot', usage='')
 	async def ping(self, ctx: commands.Context) -> None:
-		log.info(f'Received ping command from user {ctx.author.name}')
+		log.debug(f'Received ping command from user {ctx.author.name}')
 		await ctx.send('Pong!')
 
 	@commands.command(brief='Dump bot related data', description='Allows the duping of the `log` the `roles` or the local quote database, defaults to quotes', usage='log')

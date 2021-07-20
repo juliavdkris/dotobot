@@ -5,7 +5,7 @@ from os import getenv
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound
+from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound, CheckFailure
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
@@ -62,8 +62,12 @@ async def logging(ctx: commands.Context):
 
 # Triggers on command execution error
 @bot.event
-async def on_command_error(ctx: commands.Context, error):  # can be used for logging future errors
-	pass
+async def on_command_error(ctx: commands.Context, error: Exception):
+	if isinstance(error, CheckFailure):
+		return
+	log.error(error)
+	raise error
+
 
 
 # Triggers on login and provides info
