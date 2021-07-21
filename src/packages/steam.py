@@ -58,7 +58,7 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                     break
                 await ctx.send('That was not a valid url... Please try again or type `go away`')
             
-            self.users[str(ctx.author.id)] = { "steam_id": str(steam_id) }
+            self.users[str(ctx.author.id)] = { 'steam_id': steam_id }
             self.update_config()
                 
         # Fetch caller inventory
@@ -84,6 +84,7 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
 
         # Else ping others
         else:
+            members = [str(member.id) for member in ctx.channel.members]
             message = f'We\'re playing {target_game[0]["name"]}. Get your ass over here\n'
             for discord_id, user in self.users.items():
                 games = self.steam_api.call(
@@ -96,7 +97,7 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                     skip_unvetted_apps=False
                 )['response']['games']
 
-                if target_game[0]['appid'] in [game['appid'] for game in games]:
+                if target_game[0]['appid'] in [game['appid'] for game in games] and discord_id in members:
                     message += f"<@!{discord_id}>"
             
             await ctx.send(message)
