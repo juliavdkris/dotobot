@@ -101,3 +101,4 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                     message += f"<@!{discord_id}>"
             
             await ctx.send(message)
+            
