@@ -15,11 +15,11 @@ from os import getenv
 from dotenv import load_dotenv
 load_dotenv()
 
-# -------------------------> Client
+# -------------------------> Main
 
 def setup(bot):
-    log.info('Steam module has been activated')
     bot.add_cog(Steam(bot))
+    log.info('Steam module has been activated')
 
 def teardown(bot):
     log.info('Steam module has been deactivated')
@@ -30,15 +30,20 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
         self.users = self.load_config()
         self.steam_api = WebAPI(key=getenv('STEAM_KEY'))
 
+    # Updates config
+    async def update(self):
+        self.config = self.load_config()
+        log.info(f'Steam ran an update')
+
     # Dumps config into self.users
     def load_config(self):
-        log.debug('config/users.json has been loaded')
+        log.debug('Loading data from config/users.json...')
         with open('storage/config/users.json', 'r', encoding='utf-8') as file:
             return json.load(file)
 
     # Dumps self.users into config
-    def update_config(self):
-        log.debug('config/users.json has been updated')
+    def dump_config(self):
+        log.debug('Dumping data in config/users.json...')
         with open('storage/config/users.json', 'w', encoding='utf-8') as file:
             json.dump(self.users, file, indent=4)
 
