@@ -17,10 +17,8 @@ def setup(bot):
 	log.info('Boolean module has been activated')
 	bot.add_cog(Boolean(bot))
 
-
 def teardown(bot):
 	log.info('Boolean module has been deactivated')
-
 
 class Boolean(commands.Cog, description='Boolean logic module'):
 	def __init__(self, bot):
