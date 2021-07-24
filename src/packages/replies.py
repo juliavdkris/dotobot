@@ -35,7 +35,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 
 	# Loads config files
 	def load_config(self):
-		log.debug('loading config/replies.json...')
+		log.debug('loading data from config/replies.json...')
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
@@ -93,14 +93,14 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 
 			# Press X to doubt
 			elif content == 'x':
-				with open('storage/static/doubt.png', 'br') as fp:
-					await channel.send(file=discord.File(fp, 'doubt.png'))
+				with open('storage/static/doubt.png', 'br') as file:
+					await channel.send(file=discord.File(file, 'doubt.png'))
 				log.info(f'Replied with doubt to {msg.author.name}')
 
 			# Invite people to voice
 			elif 'kom voice' in content:
-				with open('storage/static/kom_voice.png', 'br') as fp:
-					await channel.send(file=discord.File(fp, 'kom_voice.png'))
+				with open('storage/static/kom_voice.png', 'br') as file:
+					await channel.send(file=discord.File(file, 'kom_voice.png'))
 				log.info(f'Replied with kom voice to "{msg.content}"')
 
 			# git push -f origin master
@@ -128,8 +128,8 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 			except:
 				pass
 
-	# !what command
+	# Command !what
 	@commands.command(brief='What', description='There is nothing about this I understand', usage='')
 	async def what(self, ctx):
-		with open('storage/static/what.png', 'br') as fp:
-			await ctx.send(file=discord.File(fp, 'what.png'))
+		with open('storage/static/what.png', 'br') as file:
+			await ctx.send(file=discord.File(file, 'what.png'))
