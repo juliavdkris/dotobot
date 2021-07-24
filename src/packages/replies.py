@@ -14,15 +14,12 @@ import asyncio
 
 # -------------------------> Main
 
-
 def setup(bot):
 	log.info('Replies module has been activated')
 	bot.add_cog(Replies(bot))
 
-
 def teardown(bot):
 	log.info('Replies module has been deactivated')
-
 
 class Replies(commands.Cog, description='Module that replies to you in chat'):
 	def __init__(self, bot):
@@ -34,6 +31,11 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		log.debug('config/replies.json has been loaded')
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
+	
+	async def update(self):
+		self.config = self.load_config()
+		self.f_flag = True
+		log.info(f'Replies ran an update')
 
 	def mod_abuse_detector(self, content):
 		mod_flag, abuse_flag = False, False
@@ -61,43 +63,54 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		previousMessages[msg.author.id] = msg
 		return False
 
-	async def update(self):
-		self.config = self.load_config()
-		self.f_flag = True
-		log.info(f'Replies ran an update')
-
 	@commands.Cog.listener()
 	async def on_message(self, msg):
 		if msg.author.id != self.bot.user.id:
-			msgcontent, c = msg.content.lower(), msg.channel
-			if await self.peace_in_our_time(msgcontent, msg):  # corresponding message was deleted no need for reactions. command can still be executed :/
+			content, channel = msg.content.lower(), msg.channel
+
+			# If hatespeach is detected, no replies are to be sent
+			if await self.peace_in_our_time(content, msg):
 				return
 
-			if msgcontent == 'f' and self.f_flag:
+			# Reply with F to pay respects
+			if content == 'f' and self.f_flag:
 				self.f_flag = False
-				await c.send('F')
+				await channel.send('F')
 				await asyncio.sleep(15)
 				self.f_flag = True
 
-			elif 'kom voice' in msgcontent:
+			# Rock and stone
+			elif content == 'v':
+				await channel.send(choice(self.config['salute_reactions']))
+
+			# Press X to doubt
+			elif content == 'x':
+				with open('storage/static/doubt.png', 'br') as fp:
+					await channel.send(file=discord.File(fp, 'doubt.png'))
+
+			# Invite people to voice
+			elif 'kom voice' in content:
 				with open('storage/static/kom_voice.png', 'br') as fp:
-					await c.send(file=discord.File(fp, 'kom_voice.png'))
+					await channel.send(file=discord.File(fp, 'kom_voice.png'))
 
-			elif 'shipit' in msgcontent.replace(' ', ''):
-				await c.send("https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1")
+			# git push -f origin master
+			elif 'shipit' in content.replace(' ', ''):
+				await channel.send("https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1")
 
+			# Check for 420
 			try:
 				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['weed_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
-				if m := re.search(REGEX, msgcontent):
+				if m := re.search(REGEX, content):
 					for emoji in self.config['weed_reactions']:
 						await msg.add_reaction(emoji)
 					log.info(f'Found the following for weed: {m.group(1)}')
 			except:
 				pass
-
+			
+			# Check for 69
 			try:
 				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['funny_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
-				if m := re.search(REGEX, msgcontent):
+				if m := re.search(REGEX, content):
 					for emoji in self.config['funny_reactions']:
 						await msg.add_reaction(emoji)
 					log.info(f'Found the following for nice: {m.group(1)}')

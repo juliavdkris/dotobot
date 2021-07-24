@@ -10,8 +10,7 @@
         "0️⃣"
     ],
     "funny_items" : [
-        "69",
-        "funny number"
+        "69"
     ],
     "funny_reactions" : [
         "🇳",
@@ -24,17 +23,40 @@
         ["abuse","abus3","buse","abus","abjoes","abos","aboes","misbruik", "hedgehog", "hedge"]
     ],
     "peace_reactions" : [
+        "There is no war in Ba Sing Se.",
         "It seems we are going through a tunnel, please stand by!",
         "What did you say I CAN'T HEAR YOU OVER MY VACUUM CLEANER! WJEUSZHSHSHSHSHSHSHSHSHHS",
         "I might be very naive, but then again, I was programmed to be so.",
         "Dammit Frank, close the cellar the kids are screaming again.",
         "The cheers of joy are once again overpowering.",
         "The hills are alive, with the sounds of joy!",
-        "One does not simply destroy the peacefull community.",
-        "Oh I can't allow you to say that, you'd get in trouble with the higher ups\nNobody wants trouble with the higher ups.",
+        "One does not simply destroy the peaceful community.",
+        "Oh I can't allow you to say that, you'd get in trouble with the higher ups!\nNobody wants trouble with the higher ups.",
         "I like to see you try, you might think i'm rooting for you. I'm not, I just like watching you fail.",
-        "OH GOD WAS THAT JESUS I JUST SAW, never mind must've been some flickering on my screen.",
         "UGH there's just so much garbage here.",
         "Yeah, steve said he'd come to pick up some trash comment overhere, Yeah man, no worries, steve always does his job right"
+    ],
+    "salute_reactions" : [
+        "Rock on!",
+        "Rock and stone... Yeeaaahhh!",
+        "Rock and stone forever!",
+        "ROCK... AND... STONE!",
+        "Rock and stone!",
+        "For rock and stone!",
+        "We are unbreakable!",
+        "Rock and roll!",
+        "Rock and roll and stone!",
+        "That's it lads! Rock and stone!",
+        "Like that! Rock and stone!",
+        "Yeaahhh! Rock and stone!",
+        "None can stand before us!",
+        "Rock solid!",
+        "Come on guys! Rock and stone!",
+        "If you don't rock and stone, you ain't comin' home!",
+        "We fight for rock and stone!",
+        "We rock!",
+        "Rock and stone everyone!",
+        "Rock and stone in the heart!",
+        "Did I hear a rock and stone?"
     ]
 }
