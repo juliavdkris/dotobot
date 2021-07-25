@@ -5,18 +5,18 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
-import discord
 from discord.ext import commands
+from os.path import basename
 import random
 
-# -------------------------> Client
+# -------------------------> Main
 
-def setup(bot):
-	log.info('Die module has been activated')
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Die(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-def teardown(bot):
-	log.info('Die module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 class Die(commands.Cog, name='RNG', description='Simulate dice throws'):
 	def __init__(self, bot):
@@ -35,4 +35,3 @@ class Die(commands.Cog, name='RNG', description='Simulate dice throws'):
 		]	
 		output = f'```\n{random.choice(d6)}```'
 		await ctx.send(output)
-

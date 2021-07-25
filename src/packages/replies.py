@@ -5,24 +5,26 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
+import asyncio
 import discord
 from discord.ext import commands
-from random import choice
-import asyncio
 import json
+import logging
+from os.path import basename
+from random import choice
 import re
 
 # -------------------------> Main
 
-def setup(bot):
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Replies(bot))
-	log.info('Replies module has been activated')
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-def teardown(bot):
-	log.info('Replies module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been deactivated: {basename(__file__)}')
 
 class Replies(commands.Cog, description='Module that replies to you in chat'):
-	def __init__(self, bot):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = self.load_config()
 		self.f_flag = True
@@ -40,7 +42,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 			return json.load(file)
 
 	# Detects hatespeach
-	def mod_abuse_detector(self, content: str):
+	def mod_abuse_detector(self, content: str) -> bool:
 		mod_flag, abuse_flag = False, False
 		for mod in self.config['peace_items'][0]:
 			if mod in content:
@@ -51,7 +53,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		return abuse_flag and mod_flag
 
 	# Deletes and reacts to hatespeach
-	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}):
+	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}) -> bool:
 		if self.mod_abuse_detector(content):
 			await msg.channel.send(choice(self.config['peace_reactions']))
 			await msg.delete()
@@ -69,7 +71,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 
 	# Replies module
 	@commands.Cog.listener()
-	async def on_message(self, msg):
+	async def on_message(self, msg: discord.Message) -> None:
 		if msg.author.id != self.bot.user.id:
 			content, channel = msg.content.lower(), msg.channel
 
@@ -130,6 +132,6 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 
 	# Command !what
 	@commands.command(brief='What', description='There is nothing about this I understand', usage='')
-	async def what(self, ctx):
+	async def what(self, ctx: commands.Context) -> None:
 		with open('storage/static/what.png', 'br') as file:
 			await ctx.send(file=discord.File(file, 'what.png'))

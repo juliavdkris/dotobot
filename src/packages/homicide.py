@@ -5,35 +5,37 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
+import asyncio
+from copy import deepcopy
 import discord
 from discord.ext import commands
 import json
-import asyncio
-from copy import deepcopy
+import logging
+from os.path import basename
 
 # -------------------------> Main
 
+log = logging.getLogger(__name__)
 
-def setup(bot):
-	log.info('Homicide module has been activated')
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Homicide(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-
-def teardown(bot):
-	log.info('Homicide module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 
 class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote or command'):
-	def __init__(self, bot):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = self.load_config()
 
-	def load_config(self):
+	def load_config(self) -> None:
 		log.debug(f'config/homicide.json has been loaded')
 		with open('storage/config/homicide.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
-	def on_join_helper(self, guild_id, member_id):
+	def on_join_helper(self, guild_id: int, member_id: int) -> None:
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			roles = json.load(file)
 			if not guild_id in roles or not member_id in roles[guild_id]:  # if we don't know this user skip the function
@@ -45,18 +47,18 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			file.truncate()
 			return result
 
-	def homicide_helper(self, guild_id, target_user):
+	def homicide_helper(self, guild_id: int, target_user: discord.Member) -> None:
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			rdb = json.load(file)
 			if not guild_id in rdb:
-				log.info(f'Added {guild_id} server id to the role database')
+				log.debug(f'Added {guild_id} server id to the role database')
 				rdb[guild_id] = {}
 			rdb[guild_id][str(target_user.id)] = {'nick': target_user.nick, 'roles': [role.id for role in target_user.roles][1:]}
 			file.seek(0)
 			json.dump(rdb, file, sort_keys=True, indent=4)
 			file.truncate()
 
-	async def homicide(self, ctx, target_user):
+	async def homicide(self, ctx: commands.Context, target_user: discord.Member):
 		if target_user.bot:  # we should not be able to kick bots like this.
 			return
 		self.homicide_helper(str(ctx.guild.id), target_user)  # should prevent the race conditions
@@ -75,7 +77,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		await ctx.guild.unban(target_user)
 		log.info(f'User {target_user.name} has been unbanned via homicide')
 
-	async def reaction_listener_helper(self, msg, caller_id, needed_votes):
+	async def reaction_listener_helper(self, msg: discord.Message, caller_id: int, needed_votes: int) -> bool:
 		msg = await msg.channel.fetch_message(msg.id)
 		yay_voters = [int(user.id) for user in await msg.reactions[0].users().flatten()]  # not sure if this line and the one above can be compressed
 		if msg.reactions[0].count + (-1 if caller_id in yay_voters else 0) >= msg.reactions[1].count + needed_votes:
@@ -83,7 +85,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			return True
 		return False
 
-	async def reaction_listener(self, ctx, msg, caller_id, needed_votes):
+	async def reaction_listener(self, ctx: commands.Context, msg: discord.Message, caller_id: int, needed_votes: int) -> bool:
 		log.info(f'A vote was called and needs {needed_votes} votes more in favour')
 		await msg.add_reaction('✅')
 		await msg.add_reaction('⛔')
@@ -99,7 +101,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			return False
 
 	@commands.Cog.listener()
-	async def on_member_join(self, member):
+	async def on_member_join(self, member: discord.Member) -> None:
 		log.info(f'User {member.name} has joined: {member.guild.name}')
 		guild = member.guild  # setting up some basics
 		result = self.on_join_helper(str(guild.id), str(member.id))
@@ -114,28 +116,28 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 				await member.add_roles(role)
 		log.info(f'User {member.name} has been reassigned their roles')
 
-	async def update(self):
+	async def update(self) -> None:
 		self.config = self.load_config()
 		log.info(f'Homicide ran an update')
 
 	@commands.command(brief='Insta kick someone', description='Insta kick one or multiple people as an administrator by tagging them.', usage='@bad-person')
 	@commands.has_role('admin')
-	async def murder(self, ctx, *users: discord.Member):  # murder now supports multiple arguments
-		log.info(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
+	async def murder(self, ctx: commands.Context, *users: discord.Member) -> None:  # murder now supports multiple arguments
+		log.debug(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
 		tasks = []
 		for user in users:
 			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 		asyncio.gather(*tasks)
 
 	@commands.command(brief='Temp ban yourself', description='Temp ban yourself. To save face one might commit the ritual of seppuku', usage='')
-	async def suicide(self, ctx):
-		log.info('SUICIDE: {ctx.author.name} Has committed suicide')
+	async def suicide(self, ctx) -> None:
+		log.debug('SUICIDE: {ctx.author.name} Has committed suicide')
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
 	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person')
-	async def lynch(self, ctx, *users: discord.Member):  # and if murder does then so shall lynch
-		log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
+	async def lynch(self, ctx: commands.Context, *users: discord.Member) -> None:  # and if murder does then so shall lynch
+		log.debug(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
 		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
@@ -144,9 +146,9 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		asyncio.gather(*tasks)
 
 	@commands.command(brief='Vote to tempban an entire role.', description='Vote to tempban an entire role.', usage='@leaflovers')
-	async def genocide(self, ctx, *role: discord.Role):  # when the tensions get high
+	async def genocide(self, ctx: commands.Context, *role: discord.Role) -> None:  # when the tensions get high
 		role = role[0]
-		log.info(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
+		log.debug(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
 		if role == ctx.guild.roles[0]:
 			await ctx.send("I mean, I don't judge but someone will.")
 			return
@@ -158,11 +160,11 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			asyncio.gather(*tasks)
 
 	@commands.command(brief='Vote to mute someone for a timeout', description='Vote to mute someone for a timeout.', usage='@loud-person')
-	async def silence(self, ctx, *users: discord.Member):
+	async def silence(self, ctx: commands.Context, *users: discord.Member) -> None:
 		user = users[0]
 		msg = await ctx.send(f'Damn people really wanna shut up {user.name}.\nYour say.')
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['mute_votes']):
-			log.info(f"LYNCH: {ctx.author.name} has called a lynch on: {user.name} which passed")
+			log.info(f"SILENCE: {ctx.author.name} has called a lynch on: {user.name} which passed")
 			await ctx.send('Now playing: The sound of silence')
 			await user.edit(mute=True)
 			await asyncio.sleep(self.config['mute_timeout'])

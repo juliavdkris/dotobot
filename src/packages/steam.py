@@ -5,33 +5,34 @@ import logging
 log = logging.getLogger(__name__)
 
 # Import libraries
-from steam import steamid
-from steam.webapi import WebAPI
 from discord.ext import commands
 from fuzzywuzzy import process
-
 import json
+from os.path import basename
+from steam import steamid
+from steam.webapi import WebAPI
+
 from os import getenv
 from dotenv import load_dotenv
 load_dotenv()
 
 # -------------------------> Main
 
-def setup(bot):
-    bot.add_cog(Steam(bot))
-    log.info('Steam module has been activated')
+def setup(bot: commands.Bot) -> None:
+	bot.add_cog(Steam(bot))
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-def teardown(bot):
-    log.info('Steam module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 class Steam(commands.Cog, name='Steam', description='Interface with steam'):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.users = self.load_config()
         self.steam_api = WebAPI(key=getenv('STEAM_KEY'))
 
     # Updates config
-    async def update(self):
+    async def update(self) -> None:
         self.config = self.load_config()
         log.info(f'Steam ran an update')
 
@@ -49,7 +50,7 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
 
     # Matches userinput to find a game in steamlibrary and pings other users that have that game
     @commands.command(brief='Invite people to play a game', description='Scans Steam inventories for people to play games with', usage='[game]')
-    async def letsplay(self, ctx: commands.Context, *, game_name: str):
+    async def letsplay(self, ctx: commands.Context, *, game_name: str) -> None:
         log.info(f'Received letsplay command from user {ctx.author.name}')
 
         # Check if user is known

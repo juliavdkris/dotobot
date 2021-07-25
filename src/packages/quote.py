@@ -2,31 +2,30 @@
 
 # Setup python logging
 import logging
-
-from discord.ext.commands.errors import CommandNotFound
-
 log = logging.getLogger(__name__)
 
 # Import libraries
 import discord
 from discord import Colour
 from discord.ext import commands
-from random import choice
-from os import path
 import json
+from os import path
+from os.path import basename
+from random import choice
 import re
+from typing import Dict, List, Tuple, Union
 
 # -------------------------> Main
 
-def setup(bot):
+def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Quotes(bot))
-	log.info('Quotes module has been activated')
+	log.info(f'Module has been activated: {basename(__file__)}')
 
-def teardown(bot):
-	log.info('Quotes module has been deactivated')
+def teardown(bot: commands.Bot) -> None:
+	log.info(f'Module has been de-activated: {basename(__file__)}')
 
 class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):
-	def __init__(self, bot):
+	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = self.load_config()
 
@@ -42,25 +41,24 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 			return json.load(file)
 
 	# Load quote database
-	def load_quotes(self, guild_id: str):
+	def load_quotes(self, guild_id: str) -> Dict[str, Dict[str, Union[str, int, List[int] ]]]:
 		log.debug(f'db/quotes/{guild_id}.json has been loaded')
 		with open(f'storage/db/quotes/{guild_id}.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	# Parses string into different groups
-	def split_quote(self, quote: str):
+	def split_quote(self, quote: str) -> Tuple[str,str]:
 		REGEX = r'["“](.*)["”] ?- ?(.*)'
 		match = re.search(REGEX, quote)
 		return match.group(1), match.group(2)
 
-	# Searches the database for a quote
-	async def quote(self, ctx: commands.Context, args: str):
+	async def quote(self, ctx: commands.Context, args:str) -> None:
 		guild_key = str(ctx.guild.id)
 		quotes = self.load_quotes(guild_key)
 
 		try:
-			args = args.split()[1]  # Grab the key since we get here with a !q 123
-			quote_key = str(int(args))  # Check for impostor
+			args = args.split()[1]
+			quote_key = str(int(args))
 			if quote_key not in quotes:
 				raise Exception('key was not present in the dictionary')
 		except:
@@ -68,7 +66,6 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 		quote = quotes[quote_key]
 		await ctx.send(f'> {quote_key}: \"{quote["quote"]}\" - {quote["author"]}')
-		return
 
 	# Groups quotes into blocks
 	async def mass_quote(self, ctx: commands.Context, quotes: list):
@@ -90,7 +87,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 		await self.mass_quote_embed(ctx, quoteables)
 
 	# Displays quotes en-mass
-	async def mass_quote_embed(self, ctx: commands.Context, quote_blocks: list):
+	async def mass_quote_embed(self, ctx: commands.Context, quote_blocks: List[Dict[str, Union[int, str]]]) -> None:
 		colours = [Colour.from_rgb(255,0,0), Colour.orange(), Colour.gold(), Colour.green(), Colour.blue(), Colour.dark_blue(), Colour.purple()]
 		embed = discord.Embed(title="Quotes", colour = colours[0])
 
@@ -106,20 +103,17 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Command group !quote
 	@commands.group(aliases=['quote'], brief='Subgroup for quote functionality', description='Subgroup for quote functionality. Use !help q')
-	async def q(self, ctx: commands.Context):
-
+	async def q(self, ctx: commands.Context) -> None:
 		if not path.isfile('storage/db/quotes/' + str(ctx.guild.id) + '.json'):
 			with open('storage/db/quotes/' + str(ctx.guild.id) + '.json', 'w+', encoding='utf-8') as file:
 				json.dump({}, file, indent=4)
 		if ctx.invoked_subcommand is None:
 			log.info(f'User {ctx.author.name} has passed an invalid quote subcommand: "{ctx.message.content}"')
 			await self.quote(ctx, ctx.message.content)
-		else:
-			log.info(f'User {ctx.author.name} has called command: "{ctx.invoked_subcommand}"')
 
 	# Adds a quote to the database
 	@q.command(brief='Add a quote', description='Add a quote to the database', usage='"[quote]" - [author]')
-	async def add(self, ctx: commands.Context, *, args=None):
+	async def add(self, ctx: commands.Context, *, args=None) -> None:
 		guild_id = str(ctx.guild.id)
 		quote, author = self.split_quote(args)
 
@@ -140,7 +134,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 	# Deletes a quote from the database
 	@q.command(aliases=['del', 'delete'], brief='Remove a quote', description='Remove a quote from the database by id.', usage='[quote id]')
 	@commands.has_permissions(administrator=True)
-	async def remove(self, ctx: commands.Context, *, args=None):
+	async def remove(self, ctx: commands.Context, *, args=None) -> None:
 		quote_key, guild_id, succes = str(int(args)), str(ctx.guild.id), False
 
 		with open(f'storage/db/quotes/{guild_id}.json', 'r+', encoding='utf-8') as file:
@@ -162,7 +156,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 	# Changes a quote in the database
 	@q.command(aliases=['change'], brief='Edit a quote', description='Either replace a quote completely, only the author, or just the quote.', usage='[quote id] (author/quote) "[quote]" - [author]')  # assuming this server already has a database for them.
 	@commands.has_permissions(administrator=True)
-	async def edit(self, ctx: commands.Context, *args):  # the arg parser can do some weird stuff with quotation marks
+	async def edit(self, ctx: commands.Context, *args) -> None:  # the arg parser can do some weird stuff with quotation marks TODO wdym?!?!
 		try:
 			index = str(int(args[0]))  # check for impostor aka strings
 		except:
@@ -202,7 +196,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 				if search_key in quotes[quote][search_request].lower():
 					search_result.append(quotes[quote])
 		else:
-			log.info('searching through entire quote object')
+			log.debug('Searching through entire quote object')
 			search_key = args.lower()
 			for quote in quotes:
 				if search_key in quotes[quote]['quote'].lower() + quotes[quote]['author'].lower():
@@ -212,28 +206,26 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Dumps all quotes
 	@q.command(brief='Return all quotes', description='Return all quotes', usage='')
-	async def all(self, ctx: commands.Context):
+	async def all(self, ctx: commands.Context) -> None:
 		quotes = self.load_quotes(str(ctx.guild.id))
 		await self.mass_quote(ctx, list(quotes.values()))
 
 	# Return the last few quotes
 	@q.command(brief='Return the last few quotes', description='Return the last x quotes', usage='(amount)')
-	async def last(self, ctx: commands.Context, arg=10):
+	async def last(self, ctx: commands.Context, arg: int = 10):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		quotes = sorted(list(quotes.values()), key=lambda i: i['id'])
 		
 		try:
 			arg = int(arg)
 		except:
-			await ctx.send('Could not read supplied integer')
-			log.warning(f"Quote last could not read {arg}")
-			return
+			arg = 10
 
 		await self.mass_quote(ctx, quotes[-arg:])
 
 	# Displays quote statistics
 	@q.command(brief='Quote database statistics', description='Quote database statistics or ask for data on a specific quote', usage='[quote id]')
-	async def stats(self, ctx: commands.Context, arg=None):
+	async def stats(self, ctx: commands.Context, arg=None) -> None:
 		quotes = self.load_quotes(str(ctx.guild.id))
 		
 		if arg == None:
@@ -250,7 +242,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Vote to delete a quote
 	@q.command(brief='Vote to delete a quote', description='Vote to delete a quote', usage='[quote id]')
-	async def vote(self, ctx: commands.Context, quote_id=None):
+	async def vote(self, ctx: commands.Context, quote_id=None) -> None:
 		guild_id, author_id, deleted = str(ctx.guild.id), ctx.author.id, False
 
 		try:
@@ -277,7 +269,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Veto to delete a quote
 	@q.command(brief='Veto the deletion of a quote', description='Veto the deletion of a quote.', usage='[quote id]')
-	async def veto(self, ctx: commands.Context, quote_id=None):
+	async def veto(self, ctx: commands.Context, quote_id: str = None) -> None:
 		guild_id, author_id = str(ctx.guild.id), ctx.author.id
 
 		try:
