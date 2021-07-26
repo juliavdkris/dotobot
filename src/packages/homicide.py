@@ -1,11 +1,17 @@
-import asyncio
-import json
-import logging
-from copy import deepcopy
-from os.path import basename
+# -------------------------> Dependencies
 
+# Setup python logging
+import logging
+log = logging.getLogger(__name__)
+
+# Import libraries
+import asyncio
+from copy import deepcopy
 import discord
 from discord.ext import commands
+import json
+import logging
+from os.path import basename
 
 # -------------------------> Main
 

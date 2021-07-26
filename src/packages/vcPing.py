@@ -1,13 +1,17 @@
-import logging
-import threading
-from os.path import basename
+# -------------------------> Dependencies
 
+# Setup python logging
+import logging
+log = logging.getLogger(__name__)
+
+# Import libraries
 import discord
 from discord.ext import commands
+from os.path import basename
+import threading
 
 # -------------------------> Main
 
-log = logging.getLogger(__name__)
 lock = threading.RLock()
 vc_suffix = '-VC'
 
@@ -17,7 +21,6 @@ def setup(bot: commands.Bot) -> None:
 
 def teardown(bot: commands.Bot) -> None:
 	log.info(f'Module has been de-activated: {basename(__file__)}')
-
 
 class VoicePing(commands.Cog):
 	def __init__(self, bot: commands.Bot):

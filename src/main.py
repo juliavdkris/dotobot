@@ -1,13 +1,21 @@
-import json
-import logging as log
-from copy import copy
-from os import getenv
+# -------------------------> Dependencies
 
+# Setup python logging
+import logging
+log = logging.getLogger(__name__)
+
+# Import libraries
+from copy import copy
 import discord
 from discord.ext import commands
 from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound, CheckFailure
-from dotenv import load_dotenv
+import json
+import logging as log
 from pretty_help import PrettyHelp
+
+from os import getenv
+from dotenv import load_dotenv
+load_dotenv()
 
 # -------------------------> Globals
 
@@ -19,15 +27,14 @@ log.basicConfig(
     filemode='w',
     encoding='utf-8'
 )
-log.getLogger('discord').setLevel('WARNING')  # hide info logs that the discord module sents
-load_dotenv()
+
+log.getLogger('discord').setLevel('WARNING')  # Hide info logs that the discord module sents
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
 color = discord.Color.from_rgb(255, 0, 0)
 extensions, deactivated_extensions = set(), set()
 
 # -------------------------> Helper functions
-
 
 def load_config() -> None:
 	global extensions, deactivated_extensions
@@ -44,10 +51,9 @@ def save_config() -> None:
 
 
 def developerOnly():
-    def predicate(ctx):  # checks if the ID is from someone who should have run-time access
+    def predicate(ctx):  # Checks if the ID is from someone who should have run-time access
         return ctx.author.id in [355730172286205954, 228518187778572288, 282961927657750528]  # TODO not hardcoded
     return commands.check(predicate)
-
 
 # -------------------------> events
 
@@ -68,8 +74,6 @@ async def on_command_error(ctx: commands.Context, error: Exception):
 	log.error(error)
 	raise error
 
-
-
 # Triggers on login and provides info
 @bot.event
 async def on_ready() -> None:
@@ -86,21 +90,20 @@ async def on_message(msg: discord.Message) -> None:
 		msglog.debug(f"{msg.author.name.ljust(16,' ')} | with:  {msg.content}")
 		await bot.process_commands(msg)
 
-
 # -------------------------> Cog configuration commands
 
 @developerOnly()
 @bot.command(brief='Update all modules', description='Update all modules according to the config file.', usage='')
 async def update(ctx: commands.Context) -> None:
 	load_config()
-	for ext in extensions:  # load all modules in config
+	for ext in extensions:  # Load all modules in config
 		if ext not in bot.extensions:
 			try:
 				bot.load_extension(ext)
 			except Exception as e:
 				log.warning(e)
 
-	for ext in list(bot.extensions.keys()):  # unload all modules not mentioned in active config
+	for ext in list(bot.extensions.keys()):  # Unload all modules not mentioned in active config
 		if ext not in extensions:
 			try:
 				bot.unload_extension(ext)
@@ -113,7 +116,6 @@ async def update(ctx: commands.Context) -> None:
 			await cog.update()
 
 	await ctx.send('Everything has been updated')
-
 
 @developerOnly()
 @bot.command(brief='Stop specific modules', description='Stop specific modules. Can only stop running modules.', usage='quote')
@@ -128,7 +130,6 @@ async def stop(ctx: commands.Context, *args) -> None:
 		else:
 			await ctx.send(f'Module `{ext}` not present in the active modules')
 	save_config()
-
 
 @developerOnly()
 @bot.command(brief='Start a specific module', description='Start a specific module.', usage='quote')
@@ -153,7 +154,6 @@ async def start(ctx: commands.Context, *args) -> None:
 			deactivated_extensions.remove(ext)
 	save_config()
 
-
 @developerOnly()
 @bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx: commands.Context, *args) -> None:
@@ -168,7 +168,6 @@ async def restart(ctx: commands.Context, *args) -> None:
 				await ctx.send(f'Module: `{ext}` has been reloaded')
 			else:
 				await ctx.send(f'Module: `{ext}` was not active.')
-
 
 # -------------------------> Main
 

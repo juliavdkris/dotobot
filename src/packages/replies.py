@@ -1,24 +1,27 @@
-import asyncio
-import json
-import logging
-import re
-from os.path import basename
-from random import choice
+# -------------------------> Dependencies
 
+# Setup python logging
+import logging
+log = logging.getLogger(__name__)
+
+# Import libraries
+import asyncio
 import discord
 from discord.ext import commands
+import json
+import logging
+from os.path import basename
+from random import choice
+import re
 
 # -------------------------> Main
-
-log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Replies(bot))
 	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
-
+	log.info(f'Module has been deactivated: {basename(__file__)}')
 
 class Replies(commands.Cog, description='Module that replies to you in chat'):
 	def __init__(self, bot: commands.Bot):
@@ -26,11 +29,19 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		self.config = self.load_config()
 		self.f_flag = True
 
+	# Updates config and cog variables
+	async def update(self):
+		self.config = self.load_config()
+		self.f_flag = True
+		log.info(f'Replies ran an update')
+
+	# Loads config files
 	def load_config(self):
-		log.debug('config/replies.json has been loaded')
+		log.debug('loading data from config/replies.json...')
 		with open('storage/config/replies.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
+	# Detects hatespeach
 	def mod_abuse_detector(self, content: str) -> bool:
 		mod_flag, abuse_flag = False, False
 		for mod in self.config['peace_items'][0]:
@@ -41,6 +52,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 				abuse_flag = True
 		return abuse_flag and mod_flag
 
+	# Deletes and reacts to hatespeach
 	async def peace_in_our_time(self, content: str, msg: discord.Message, previousMessages = {}) -> bool:
 		if self.mod_abuse_detector(content):
 			await msg.channel.send(choice(self.config['peace_reactions']))
@@ -57,50 +69,69 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 		previousMessages[msg.author.id] = msg
 		return False
 
-	async def update(self) -> None:
-		self.config = self.load_config()
-		self.f_flag = True
-		log.info(f'Replies ran an update')
-
+	# Replies module
 	@commands.Cog.listener()
 	async def on_message(self, msg: discord.Message) -> None:
 		if msg.author.id != self.bot.user.id:
-			msgcontent, c = msg.content.lower(), msg.channel
-			if await self.peace_in_our_time(msgcontent, msg):  # corresponding message was deleted no need for reactions. command can still be executed :/
+			content, channel = msg.content.lower(), msg.channel
+
+			# If hatespeach is detected, no replies are to be sent
+			if await self.peace_in_our_time(content, msg):
+				log.info(f'Kept the peace by deleting "{msg.content}"')
 				return
 
-			if msgcontent == 'f' and self.f_flag:
+			# Reply with F to pay respects
+			if content == 'f' and self.f_flag:
 				self.f_flag = False
-				await c.send('F')
+				await channel.send('F')
 				await asyncio.sleep(15)
 				self.f_flag = True
+				log.info(f'Replied with F to {msg.author.name}f')
 
-			elif 'kom voice' in msgcontent:
-				with open('storage/static/kom_voice.png', 'br') as fp:
-					await c.send(file=discord.File(fp, 'kom_voice.png'))
+			# Rock and stone
+			elif content == 'v':
+				await channel.send(choice(self.config['salute_reactions']))
+				log.info(f'Replied with a salute to {msg.author.name}')
 
-			elif 'shipit' in msgcontent.replace(' ', ''):
-				await c.send("https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1")
+			# Press X to doubt
+			elif content == 'x':
+				with open('storage/static/doubt.png', 'br') as file:
+					await channel.send(file=discord.File(file, 'doubt.png'))
+				log.info(f'Replied with doubt to {msg.author.name}')
 
+			# Invite people to voice
+			elif 'kom voice' in content:
+				with open('storage/static/kom_voice.png', 'br') as file:
+					await channel.send(file=discord.File(file, 'kom_voice.png'))
+				log.info(f'Replied with kom voice to "{msg.content}"')
+
+			# git push -f origin master
+			elif 'shipit' in content.replace(' ', ''):
+				await channel.send('https://cdn.discordapp.com/emojis/727923735239196753.gif?v=1')
+				log.info(f'Replied with shipit to "{msg.content}"')
+
+			# Check for 420
 			try:
 				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['weed_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
-				if m := re.search(REGEX, msgcontent):
+				if match := re.search(REGEX, content):
 					for emoji in self.config['weed_reactions']:
 						await msg.add_reaction(emoji)
-					log.info(f'Found the following for weed: {m.group(1)}')
+					log.info(f'Replied with 420 to "{match.group(1)}"')
 			except:
 				pass
-
+			
+			# Check for 69
 			try:
 				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['funny_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
-				if m := re.search(REGEX, msgcontent):
+				if match := re.search(REGEX, content):
 					for emoji in self.config['funny_reactions']:
 						await msg.add_reaction(emoji)
-					log.info(f'Found the following for nice: {m.group(1)}')
+					log.info(f'Replied with 69 to "{match.group(1)}"')
 			except:
 				pass
 
-	@commands.command(brief='What', description='What', usage='')
+	# Command !what
+	@commands.command(brief='What', description='There is nothing about this I understand', usage='')
 	async def what(self, ctx: commands.Context) -> None:
-		with open('storage/static/what.png', 'br') as fp:
-			await ctx.send(file=discord.File(fp, 'what.png'))
+		with open('storage/static/what.png', 'br') as file:
+			await ctx.send(file=discord.File(file, 'what.png'))

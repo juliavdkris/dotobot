@@ -1,20 +1,23 @@
+# -------------------------> Dependencies
+
+# Setup python logging
 import logging
+log = logging.getLogger(__name__)
+
+# Import libraries
 from copy import deepcopy
+from discord.ext import commands
 from itertools import product
 from os.path import basename
 
-from discord.ext import commands
-
 # -------------------------> Main
-
-log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Boolean(bot))
 	log.info(f'Module has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Module has been deactivated: {basename(__file__)}')
 
 class Boolean(commands.Cog, description='Boolean logic module'):
 	def __init__(self, bot):
