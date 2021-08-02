@@ -2,6 +2,8 @@
 
 # Setup python logging
 import logging
+
+from discord import Colour
 log = logging.getLogger(__name__)
 
 # Import libraries
@@ -89,15 +91,18 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		log.info(f'A vote was called and needs {needed_votes} votes more in favour')
 		await msg.add_reaction('✅')
 		await msg.add_reaction('⛔')
+		old_embed = msg.embeds[0]
 		try:  # wait for functions crash when they reach their timeout.
 			while True:
 				await self.bot.wait_for('reaction_add', check=lambda reaction, user: reaction.emoji == '✅' and msg.id == reaction.message.id, timeout=self.config['vote_timer'])
 				if await self.reaction_listener_helper(msg, caller_id, needed_votes):
+					await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in yay ✅'))
 					return True
 		except:
 			if await self.reaction_listener_helper(msg, caller_id, needed_votes):
+				await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in yay ✅'))
 				return True
-			await ctx.send('Vote resulted in nay ⛔')
+			await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in nay ⛔'))
 			return False
 
 	@commands.Cog.listener()
@@ -135,34 +140,30 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
-	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person')
-	async def lynch(self, ctx: commands.Context, *users: discord.Member) -> None:  # and if murder does then so shall lynch
+	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person \ @bad-role')
+	async def lynch(self, ctx: commands.Context) -> None:  # and if murder does then so shall lynch
+		users = [role.members for role in ctx.message.role_mentions]
+		users.append(ctx.message.mentions)
+		users = list(set(sum(users, [])))
+		if len(users) == 0:
+			msg = await ctx.send(embed=discord.Embed(title='⛔ Need an argument', colour=Colour.from_rgb(0,0,0)))
+			await msg.edit(delete_after = 15)
+			return
+
 		log.debug(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
-		msg = await ctx.send(f"{ctx.author.name} has called a lynch on {' & '.join([member.name for member in users])}\nYay or nae?")
+		embed = discord.Embed(title=f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
+		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
 			for user in users:
-				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
-		asyncio.gather(*tasks)
-
-	@commands.command(brief='Vote to tempban an entire role.', description='Vote to tempban an entire role.', usage='@leaflovers')
-	async def genocide(self, ctx: commands.Context, *role: discord.Role) -> None:  # when the tensions get high
-		role = role[0]
-		log.debug(f"GENOCIDE: {ctx.author.name} has called a genocide on: {role.name}")
-		if role == ctx.guild.roles[0]:
-			await ctx.send("I mean, I don't judge but someone will.")
-			return
-		msg = await ctx.send(f"{ctx.author.name} has called a genocide on all of the {role.name}\nYay or nae?")
-		if await self.reaction_listener(ctx, msg, ctx.author.id, max(self.config['lynch_votes'], (len(role.members) - 1)) // 2):
-			tasks = []
-			for user in role.members:
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 			asyncio.gather(*tasks)
 
 	@commands.command(brief='Vote to mute someone for a timeout', description='Vote to mute someone for a timeout.', usage='@loud-person')
 	async def silence(self, ctx: commands.Context, *users: discord.Member) -> None:
 		user = users[0]
-		msg = await ctx.send(f'Damn people really wanna shut up {user.name}.\nYour say.')
+		embed = discord.Embed(title=f"people really wanna shut up {user.name}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
+		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['mute_votes']):
 			log.info(f"SILENCE: {ctx.author.name} has called a lynch on: {user.name} which passed")
 			await ctx.send('Now playing: The sound of silence')
