@@ -1,16 +1,13 @@
-# -------------------------> Dependencies
-
-# Setup python logging
 import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
 from copy import deepcopy
-from discord.ext import commands
 from itertools import product
 from os.path import basename
 
+from discord.ext import commands
+
 # -------------------------> Main
+
+log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Boolean(bot))

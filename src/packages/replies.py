@@ -1,20 +1,16 @@
-# -------------------------> Dependencies
-
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
 import asyncio
-import discord
-from discord.ext import commands
 import json
 import logging
+import re
 from os.path import basename
 from random import choice
-import re
+
+import discord
+from discord.ext import commands
 
 # -------------------------> Main
+
+log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Replies(bot))

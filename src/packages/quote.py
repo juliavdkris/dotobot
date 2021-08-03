@@ -1,21 +1,18 @@
-# -------------------------> Dependencies
-
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-import discord
-from discord import Colour
-from discord.ext import commands
 import json
+import logging
+import re
 from os import path
 from os.path import basename
 from random import choice
-import re
 from typing import Dict, List, Tuple, Union
 
+import discord
+from discord import Colour
+from discord.ext import commands
+
 # -------------------------> Main
+
+log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Quotes(bot))

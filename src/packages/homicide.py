@@ -1,19 +1,12 @@
-# -------------------------> Dependencies
-
-# Setup python logging
-import logging
-
-from discord import Colour
-log = logging.getLogger(__name__)
-
-# Import libraries
 import asyncio
-from copy import deepcopy
-import discord
-from discord.ext import commands
 import json
 import logging
+from copy import deepcopy
 from os.path import basename
+
+import discord
+from discord import Colour
+from discord.ext import commands
 
 # -------------------------> Main
 
