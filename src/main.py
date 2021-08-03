@@ -147,17 +147,17 @@ async def start(ctx: commands.Context, *args) -> None:
 	save_config()
 
 @developerOnly()
-@bot.command(aliases=["reload"], brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
+@bot.command(brief='Restart all or specific modules', aliases=['reload'], description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx: commands.Context, *args) -> None:
 	if not args or args[0] == 'all':
 		for extension in list(bot.extensions.keys()):
 			bot.reload_extension(extension)
-		await ctx.send('All modules have been reloaded')
+		await ctx.send('All modules have been restarted')
 	else:
 		for arg in args:
 			if (ext := 'packages.' + arg) in bot.extensions.keys():
 				bot.reload_extension(ext)
-				await ctx.send(f'Module: `{ext}` has been reloaded')
+				await ctx.send(f'Module: `{ext}` has been restarted')
 			else:
 				await ctx.send(f'Module: `{ext}` was not active.')
 
