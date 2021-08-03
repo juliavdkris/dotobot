@@ -1,17 +1,13 @@
-# -------------------------> Dependencies
-
-# Setup python logging
 import logging
-log = logging.getLogger(__name__)
+import threading
+from os.path import basename
 
-# Import libraries
 import discord
 from discord.ext import commands
-from os.path import basename
-import threading
 
 # -------------------------> Main
 
+log = logging.getLogger(__name__)
 lock = threading.RLock()
 vc_suffix = '-VC'
 

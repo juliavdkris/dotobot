@@ -1,24 +1,17 @@
-# -------------------------> Dependencies
-
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-from copy import copy
-import discord
-from discord.ext import commands
-from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound, CheckFailure
 import json
 import logging as log
-from pretty_help import PrettyHelp
-
+from copy import copy
 from os import getenv
+
+import discord
+from discord.ext import commands
+from discord.ext.commands.errors import CheckFailure, ExtensionAlreadyLoaded, ExtensionNotFound
 from dotenv import load_dotenv
-load_dotenv()
+from pretty_help import PrettyHelp
 
 # -------------------------> Globals
 
+load_dotenv()
 log.basicConfig(
     level=log.INFO,  # Basic logging and formatting settings
     format='%(asctime)s [%(levelname)8s] @ %(name)-18s: %(message)s',
@@ -27,7 +20,6 @@ log.basicConfig(
     filemode='w',
     encoding='utf-8'
 )
-
 log.getLogger('discord').setLevel('WARNING')  # Hide info logs that the discord module sents
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=getenv('PREFIX'), intents=intents)
