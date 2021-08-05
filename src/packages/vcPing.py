@@ -1,5 +1,6 @@
 import logging
 import threading
+from functools import lru_cache
 from os.path import basename
 
 import discord
@@ -24,7 +25,13 @@ class VoicePing(commands.Cog):
 
 	# remove all VC roles for which no VC exists.
 	async def clean_up(self, guild: discord.Guild) -> None:
-		roles = {role.name: role for role in guild.roles}
+		roles = {}
+		for role in guild.roles:
+			if role.name in roles:
+				await role.delete(reason='Detected a duplicate role')
+				continue
+			roles[role.name] = role
+
 		vc_channels = [vc.name for vc in guild.voice_channels]
 		for role_name in roles:
 			if role_name.replace(vc_suffix,'') not in vc_channels and vc_suffix in role_name:
@@ -39,7 +46,8 @@ class VoicePing(commands.Cog):
 		return True
 
 	# returns the role if it exists otherwise, create the role.
-	async def compute_role_if_absent(self, roleName: str, guild: discord.Guild, suffix=None) -> discord.Role:
+	@lru_cache(1)
+	async def compute_role_if_absent(self, roleName: str, guild: discord.Guild, suffix: str = None) -> discord.Role:
 		roles = {role.name: role for role in guild.roles}
 		if suffix:
 			roleName = roleName+suffix
