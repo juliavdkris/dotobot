@@ -1,30 +1,30 @@
 # -------------------------> Dependencies
 
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-from copy import deepcopy
-from discord.ext import commands
 import json
-from os.path import basename
+import logging
 import re
+from os import getenv
+from os.path import basename
+
+from discord.ext import commands
+from dotenv import load_dotenv
 from steam import steamid
 from steam.webapi import WebAPI
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
-
 # -------------------------> Main
 
+# Setup environment
+load_dotenv()
+log = logging.getLogger(__name__)
+
+# Setup cog
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Steam(bot))
 	log.info(f'Module has been activated: {basename(__file__)}')
 
+# Teardown cog
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Module has been deactivated: {basename(__file__)}')
 
 # Uses a two-row algorithm to calculate the levenshtein distance between two strings
 def levenshtein(a: str, b: str) -> int:
@@ -89,21 +89,30 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     # Matches userinput to find a game in steamlibrary and pings other users that have that game
     @commands.command(brief='Invite people to play a game', description='Scans Steam inventories for people to play games with', usage='[game]')
     async def letsplay(self, ctx: commands.Context, *, game_name: str) -> None:
-        log.info(f'Received letsplay command from user {ctx.author.name}')
 
         # Check if user is known
         if str(ctx.author.id) not in self.users.keys():
-            await ctx.send('I dont know your steamID yet! What is your steamprofile URL?')
+            log.info(f'User still unknown in the SteamID database...')
+            await ctx.send('I dont know your SteamID yet! What is your steamprofile URL?')
             while True:
-                url = await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author, timeout=180)
+                try:
+                    url = await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author, timeout=10)
+                except:
+                    log.info('User declined to enter SteamID database')
+                    return
+
                 steam_id = steamid.steam64_from_url(url.content)
 
-                if steam_id != None or url.content == 'go away':
+                if url.content == 'go away':
+                    log.info('User declined to enter SteamID database')
+                    return
+                if steam_id != None:
                     break
                 await ctx.send('That was not a valid url... Please try again or type `go away`')
             
             self.users[str(ctx.author.id)] = { 'steam_id': steam_id }
-            self.update_config()
+            self.dump_config()
+            log.info('User sucessfully added to the SteamID database')
                 
         # Fetch caller inventory
         result = self.steam_api.call(
@@ -156,6 +165,6 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                 )['response']['games']
 
                 if target_game['match']['appid'] in [game['appid'] for game in games] and discord_id in members:
-                    message += f'<@!{discord_id}fuckoff>'
+                    message += f'<@!{discord_id}>'
             
             await ctx.send(message)

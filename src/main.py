@@ -155,7 +155,7 @@ async def start(ctx: commands.Context, *args) -> None:
 	save_config()
 
 @developerOnly()
-@bot.command(brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
+@bot.command(aliases=["reload"], brief='Restart all or specific modules', description='Restart all or specific modules. Module needs to be active', usage='[quote]')
 async def restart(ctx: commands.Context, *args) -> None:
 	if not args or args[0] == 'all':
 		for extension in list(bot.extensions.keys()):
