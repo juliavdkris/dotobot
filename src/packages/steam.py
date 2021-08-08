@@ -1,29 +1,67 @@
 # -------------------------> Dependencies
 
-# Setup python logging
-import logging
-log = logging.getLogger(__name__)
-
-# Import libraries
-from discord.ext import commands
-from fuzzywuzzy import process
 import json
+import logging
+import re
+from os import getenv
 from os.path import basename
+
+from discord.ext import commands
+from dotenv import load_dotenv
 from steam import steamid
 from steam.webapi import WebAPI
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
-
 # -------------------------> Main
 
+# Setup environment
+load_dotenv()
+log = logging.getLogger(__name__)
+
+# Setup cog
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Steam(bot))
 	log.info(f'Module has been activated: {basename(__file__)}')
 
+# Teardown cog
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Module has been deactivated: {basename(__file__)}')
+
+# Uses a two-row algorithm to calculate the levenshtein distance between two strings
+def levenshtein(a: str, b: str) -> int:
+    prev = [i for i in range(len(b) + 1)]
+    curr = [0 for _ in range(len(b) + 1)]
+
+    for i in range(len(a)):
+        curr[0] = i + 1
+        for j in range(len(b)):
+            del_cost = prev[j + 1] + 1
+            ins_cost = curr[j] + 1
+            sub_cost = prev[j]
+            if a[i] != b[j]:
+                sub_cost += 1
+
+            curr[j + 1] = min(del_cost, ins_cost, sub_cost)
+
+        for j in range(len(curr)):
+            prev[j] = curr[j]
+
+    return 100 - 100 * prev[len(b)] // max(len(a), len(b))
+
+# Picks a single game from a list of games, using fuzzy matching
+def choose_one(query: dict, collection: list) -> dict:
+    query = query.lower()
+    best_match = None
+    best_ratio = None
+
+    for item in collection:
+        ratio = levenshtein(query, item['alias'].lower())
+        if best_ratio == None or ratio > best_ratio:
+            best_ratio = ratio
+            best_match = item
+
+    return { 'match': best_match, 'ratio': best_ratio }
+
+
 
 class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     def __init__(self, bot: commands.Bot) -> None:
@@ -51,24 +89,33 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     # Matches userinput to find a game in steamlibrary and pings other users that have that game
     @commands.command(brief='Invite people to play a game', description='Scans Steam inventories for people to play games with', usage='[game]')
     async def letsplay(self, ctx: commands.Context, *, game_name: str) -> None:
-        log.info(f'Received letsplay command from user {ctx.author.name}')
 
         # Check if user is known
         if str(ctx.author.id) not in self.users.keys():
-            await ctx.send('I dont know your steamID yet! What is your steamprofile URL?')
+            log.info(f'User still unknown in the SteamID database...')
+            await ctx.send('I dont know your SteamID yet! What is your steamprofile URL?')
             while True:
-                url = await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author, timeout=180)
+                try:
+                    url = await self.bot.wait_for('message', check=lambda msg: msg.author == ctx.author, timeout=10)
+                except:
+                    log.info('User declined to enter SteamID database')
+                    return
+
                 steam_id = steamid.steam64_from_url(url.content)
 
-                if steam_id != None or url.content == 'go away':
+                if url.content == 'go away':
+                    log.info('User declined to enter SteamID database')
+                    return
+                if steam_id != None:
                     break
                 await ctx.send('That was not a valid url... Please try again or type `go away`')
             
             self.users[str(ctx.author.id)] = { 'steam_id': steam_id }
-            self.update_config()
+            self.dump_config()
+            log.info('User sucessfully added to the SteamID database')
                 
         # Fetch caller inventory
-        games = self.steam_api.call(
+        result = self.steam_api.call(
             'IPlayerService.GetOwnedGames',
             steamid=self.users[str(ctx.author.id)]['steam_id'],
             include_appinfo=True,
@@ -78,20 +125,34 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
             skip_unvetted_apps=False
         )['response']['games']
 
-        target_game = process.extractOne(
-            query={ 'name': game_name },
-            choices=games,
-            processor=lambda x: x['name'].lower()
-        )
+        # Creates aliases of every game to include searches like 'drg' or 'csgo'
+        games = []
+        for game in result:
+            # Create game
+            games.append({
+                'name': game['name'],
+                'appid': game['appid'],
+                'alias': game['name']
+            })
+
+            # Create alias (this isnt suuuuper failproof)
+            games.append({
+                'name': game['name'],
+                'appid': game['appid'],
+                'alias': ''.join([word[0] for word in re.findall(r"[\w]+", game['name'])])
+            })
+
+        # Match input to games
+        target_game = choose_one(game_name, games)
 
         # If no matches found
-        if target_game[1] < 75:
-            await ctx.send(f'No such games found in your library! Did you mean {target_game[0]["name"]}?')
+        if target_game['ratio'] < 85:
+            await ctx.send(f'No such games found in your library! Did you mean {target_game["match"]["name"]}?')
 
         # Else ping others
         else:
             members = [str(member.id) for member in ctx.channel.members]
-            message = f'We\'re playing {target_game[0]["name"]}. Get your ass over here\n'
+            message = f'We\'re playing {target_game["match"]["name"]}. Get your ass over here\n'
             for discord_id, user in self.users.items():
                 games = self.steam_api.call(
                     'IPlayerService.GetOwnedGames',
@@ -103,7 +164,7 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                     skip_unvetted_apps=False
                 )['response']['games']
 
-                if target_game[0]['appid'] in [game['appid'] for game in games] and discord_id in members:
-                    message += f"<@!{discord_id}>"
+                if target_game['match']['appid'] in [game['appid'] for game in games] and discord_id in members:
+                    message += f'<@!{discord_id}>'
             
             await ctx.send(message)
