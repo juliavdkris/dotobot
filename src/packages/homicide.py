@@ -34,7 +34,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 
 	# Dumps config into memory
 	def load_config(self) -> None:
-		log.debug(f'config/homicide.json has been loaded')
+		log.debug(f'Loading config/homicide.json...')
 		with open('storage/config/homicide.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
@@ -87,7 +87,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		msg = await msg.channel.fetch_message(msg.id)
 		yay_voters = [int(user.id) for user in await msg.reactions[0].users().flatten()]  # not sure if this line and the one above can be compressed
 		if msg.reactions[0].count + (-1 if caller_id in yay_voters else 0) >= msg.reactions[1].count + needed_votes:
-			log.debug('reaction listener returned true')
+			log.debug('Reaction listener returned true')
 			return True
 		return False
 
@@ -135,7 +135,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 	@commands.command(brief='Insta kick someone', description='Insta kick one or multiple people as an administrator by tagging them.', usage='@bad-person')
 	@commands.has_role('admin')
 	async def murder(self, ctx: commands.Context, *users: discord.Member) -> None:  # murder now supports multiple arguments
-		log.debug(f"MURDER: {ctx.author.name} has called murder on the following: {', '.join([member.name for member in users])}")
+		log.debug(f"{ctx.author.name} has called murder on: {', '.join([member.name for member in users])}")
 		tasks = []
 		for user in users:
 			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
@@ -144,7 +144,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 	# Instantly kick yourself
 	@commands.command(brief='Temp ban yourself', description='Temp ban yourself. To save face one might commit the ritual of seppuku', usage='')
 	async def suicide(self, ctx) -> None:
-		log.debug('SUICIDE: {ctx.author.name} Has committed suicide')
+		log.debug('{ctx.author.name} Has committed suicide')
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
@@ -159,7 +159,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			await msg.edit(delete_after = 15)
 			return
 
-		log.debug(f"LYNCH: {ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
+		log.debug(f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
 		embed = discord.Embed(title=f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
 		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
@@ -175,7 +175,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		embed = discord.Embed(title=f"people really wanna shut up {user.name}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
 		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['mute_votes']):
-			log.info(f"SILENCE: {ctx.author.name} has called a lynch on: {user.name} which passed")
+			log.info(f"{ctx.author.name} has called a lynch on: {user.name}, which passed")
 			await ctx.send('Now playing: The sound of silence')
 			await user.edit(mute=True)
 			await asyncio.sleep(self.config['mute_timeout'])

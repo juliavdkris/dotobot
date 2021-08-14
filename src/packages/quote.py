@@ -41,13 +41,13 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Loads config files
 	def load_config(self):
-		log.debug(f'config/quotes.json has been loaded')
+		log.debug(f'Loading config/quotes.json...')
 		with open('storage/config/quotes.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	# Load quote database
 	def load_quotes(self, guild_id: str) -> Dict[str, Dict[str, Union[str, int, List[int] ]]]:
-		log.debug(f'db/quotes/{guild_id}.json has been loaded')
+		log.debug(f'Loading db/quotes/{guild_id}.json...')
 		with open(f'storage/db/quotes/{guild_id}.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
