@@ -2,5 +2,4 @@ discord-py
 python-dotenv
 pynacl
 discord-pretty-help
-fuzzywuzzy
 steam

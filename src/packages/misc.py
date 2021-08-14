@@ -5,36 +5,49 @@ from random import choice
 import discord
 from discord.ext import commands
 
-# -------------------------> Main
+# -------------------------> Globals
 
+# Setup environment
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Miscellaneous(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
 
+# Miscellaneous cog
 class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionality'):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 
+	# Sets bot status to a random string
 	@commands.Cog.listener()
 	async def on_ready(self) -> None:
-		await self.set_activity(choice([
-			"Error 418 I'm a teapot.",
-			"Malicious bit set to true.",
-			"Listening human music.",
-			"Watching the whole MCU.",
-			"Watching Netlix."]))
+		await self.set_activity(
+			choice([
+				"Error 418 I'm a teapot.",
+				"Malicious bit set to true.",
+				"Listening human music.",
+				"Watching the whole MCU.",
+				"Watching Netlix."
+			])
+		)
 
+	# First line of debug defence
 	@commands.command(brief='Ping the bot', description='Ping the bot', usage='')
 	async def ping(self, ctx: commands.Context) -> None:
 		log.debug(f'Received ping command from user {ctx.author.name}')
 		await ctx.send('Pong!')
 
+	# Dump internal data
 	@commands.command(brief='Dump bot related data', description='Allows the duping of the `log` the `roles` or the local quote database, defaults to quotes', usage='log')
 	@commands.has_permissions(administrator=True)
 	async def dump(self, ctx: commands.Context, *, arg='') -> None:
@@ -51,6 +64,7 @@ class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionalit
 				await ctx.send(file=discord.File(f, 'quotes.json'))
 				return
 
+	# Delete the last few messages
 	@commands.command(brief='Delete x messages', description='Delete x messages with a max of 95', usage='5')
 	@commands.has_permissions(administrator=True)
 	async def delete(self, ctx: commands.Context, amount: int = 97) -> None:
@@ -68,6 +82,7 @@ class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionalit
 		messagelist.append(msg)
 		await ctx.channel.delete_messages(messagelist)
 
+	# Sets bot activity
 	@commands.command(brief='Set bot activity', description='Set bot playing, listening, or watching status ', usage='watching netflix')
 	@commands.has_permissions(administrator=True)
 	async def activity(self, ctx: commands.Context, *arg) -> None:

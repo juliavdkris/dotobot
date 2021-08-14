@@ -5,17 +5,25 @@ from os.path import basename
 
 from discord.ext import commands
 
-# -------------------------> Main
+# -------------------------> Globals
 
+# Setup environment
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Boolean(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been deactivated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
+
+# Boolean cog
 class Boolean(commands.Cog, description='Boolean logic module'):
 	def __init__(self, bot):
 		self.bot = bot

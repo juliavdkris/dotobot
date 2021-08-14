@@ -9,20 +9,22 @@ from dotenv import load_dotenv
 from steam import steamid
 from steam.webapi import WebAPI
 
-# -------------------------> Main
+# -------------------------> Globals
 
 # Setup environment
 load_dotenv()
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
 # Setup cog
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Steam(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 # Teardown cog
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been deactivated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 # Uses a two-row algorithm to calculate the levenshtein distance between two strings
 def levenshtein(a: str, b: str) -> int:
@@ -59,8 +61,9 @@ def choose_one(query: dict, collection: list) -> dict:
 
     return { 'match': best_match, 'ratio': best_ratio }
 
+# -------------------------> Cogs
 
-
+# Steam cog
 class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot

@@ -10,17 +10,25 @@ import discord
 from discord import Colour
 from discord.ext import commands
 
-# -------------------------> Main
+# -------------------------> Globals
 
+# Setup environment
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Quotes(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
+
+# Quotes cog
 class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
@@ -33,13 +41,13 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 
 	# Loads config files
 	def load_config(self):
-		log.debug(f'config/quotes.json has been loaded')
+		log.debug(f'Loading config/quotes.json...')
 		with open('storage/config/quotes.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
 	# Load quote database
 	def load_quotes(self, guild_id: str) -> Dict[str, Dict[str, Union[str, int, List[int] ]]]:
-		log.debug(f'db/quotes/{guild_id}.json has been loaded')
+		log.debug(f'Loading db/quotes/{guild_id}.json...')
 		with open(f'storage/db/quotes/{guild_id}.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
