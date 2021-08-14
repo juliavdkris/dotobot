@@ -18,11 +18,11 @@ log = logging.getLogger(__name__)
 # Setup cog
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Steam(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 # Teardown cog
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been deactivated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 # Uses a two-row algorithm to calculate the levenshtein distance between two strings
 def levenshtein(a: str, b: str) -> int:

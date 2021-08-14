@@ -13,13 +13,12 @@ from dotenv import load_dotenv
 log = logging.getLogger(__name__)
 load_dotenv()
 
-
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Voice(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 
 class Voice(commands.Cog, description='Play music in voice'):

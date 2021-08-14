@@ -13,10 +13,10 @@ vc_suffix = '-VC'
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(VoicePing(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 class VoicePing(commands.Cog):
 	def __init__(self, bot: commands.Bot):

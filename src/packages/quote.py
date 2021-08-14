@@ -16,10 +16,10 @@ log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Quotes(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):
 	def __init__(self, bot: commands.Bot):

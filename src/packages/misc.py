@@ -11,10 +11,10 @@ log = logging.getLogger(__name__)
 
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Miscellaneous(bot))
-	log.info(f'Module has been activated: {basename(__file__)}')
+	log.info(f'Extension has been activated: {basename(__file__)}')
 
 def teardown(bot: commands.Bot) -> None:
-	log.info(f'Module has been de-activated: {basename(__file__)}')
+	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
 
 class Miscellaneous(commands.Cog, name='Misc', description='Novelty functionality'):
