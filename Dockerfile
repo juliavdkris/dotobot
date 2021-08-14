@@ -3,18 +3,15 @@ FROM python:3
 ENV PYTHONUNBUFFERED=1
 RUN pip install --upgrade pip
 
-WORKDIR /root
-RUN mkdir storage
-
-COPY Procfile .
+WORKDIR /usr/src/app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt --no-warn-script-location
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/ app/
+COPY src/ src/
 
 # Copy initial config files
 COPY storage-template/ ./storage
 
 
-CMD ["python", "app/main.py"]
+CMD ["python", "src/main.py"]
