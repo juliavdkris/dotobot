@@ -9,11 +9,13 @@ from dotenv import load_dotenv
 from steam import steamid
 from steam.webapi import WebAPI
 
-# -------------------------> Main
+# -------------------------> Globals
 
 # Setup environment
 load_dotenv()
 log = logging.getLogger(__name__)
+
+# -------------------------> Functions
 
 # Setup cog
 def setup(bot: commands.Bot) -> None:
@@ -59,8 +61,9 @@ def choose_one(query: dict, collection: list) -> dict:
 
     return { 'match': best_match, 'ratio': best_ratio }
 
+# -------------------------> Cogs
 
-
+# Steam cog
 class Steam(commands.Cog, name='Steam', description='Interface with steam'):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot

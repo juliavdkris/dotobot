@@ -12,7 +12,7 @@ from pretty_help import PrettyHelp
 log = logging.getLogger(__name__)
 color = discord.Color.from_rgb(255, 0, 0)
 
-# -------------------------> Helper functions
+# -------------------------> Functions
 
 # Checks if the ID is from someone who should have run-time access
 def developerOnly():
@@ -21,15 +21,18 @@ def developerOnly():
 	
 	return commands.check(predicate)
 
-# -------------------------> Main
-
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(System(bot))
 	log.info(f'Extension has been activated: {basename(__file__)}')
 
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
 	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
+
+# System cog
 class System(commands.Cog, name='System', description='Internal control functionality'):
 	def __init__(self, bot: commands.Bot) -> None:
 		self.bot = bot

@@ -10,17 +10,25 @@ import discord
 from discord import Colour
 from discord.ext import commands
 
-# -------------------------> Main
+# -------------------------> Globals
 
+# Setup environment
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Quotes(bot))
 	log.info(f'Extension has been activated: {basename(__file__)}')
 
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
 	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
+
+# Quotes cog
 class Quotes(commands.Cog, name='Quote', description='Quote your friends out of context'):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot

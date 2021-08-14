@@ -8,28 +8,37 @@ import discord
 from discord import Colour
 from discord.ext import commands
 
-# -------------------------> Main
+# -------------------------> Globals
 
+# Setup environment
 log = logging.getLogger(__name__)
 
+# -------------------------> Functions
+
+# Setup extension
 def setup(bot: commands.Bot) -> None:
 	bot.add_cog(Homicide(bot))
 	log.info(f'Extension has been activated: {basename(__file__)}')
-	
+
+# Teardown extension
 def teardown(bot: commands.Bot) -> None:
 	log.info(f'Extension has been deactivated: {basename(__file__)}')
 
+# -------------------------> Cogs
 
+# Homicide cog
 class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote or command'):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 		self.config = self.load_config()
 
+	# Dumps config into memory
 	def load_config(self) -> None:
 		log.debug(f'config/homicide.json has been loaded')
 		with open('storage/config/homicide.json', 'r', encoding='utf-8') as file:
 			return json.load(file)
 
+	# Returns user info when user joins the guild
 	def on_join_helper(self, guild_id: int, member_id: int) -> None:
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			roles = json.load(file)
@@ -42,6 +51,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			file.truncate()
 			return result
 
+	# Stores user info when user gets kicked
 	def homicide_helper(self, guild_id: int, target_user: discord.Member) -> None:
 		with open('storage/db/roles.json', 'r+', encoding='utf-8') as file:
 			rdb = json.load(file)
@@ -53,6 +63,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			json.dump(rdb, file, sort_keys=True, indent=4)
 			file.truncate()
 
+	# Kicks user for a certain amount of time
 	async def homicide(self, ctx: commands.Context, target_user: discord.Member):
 		if target_user.bot:  # we should not be able to kick bots like this.
 			return
@@ -80,6 +91,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			return True
 		return False
 
+	# Awaits and tracks reactions to messages to track votes
 	async def reaction_listener(self, ctx: commands.Context, msg: discord.Message, caller_id: int, needed_votes: int) -> bool:
 		log.info(f'A vote was called and needs {needed_votes} votes more in favour')
 		await msg.add_reaction('✅')
@@ -98,6 +110,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in nay ⛔'))
 			return False
 
+	# Reassigns roles to newly joined members
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member) -> None:
 		log.info(f'User {member.name} has joined: {member.guild.name}')
@@ -118,6 +131,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		self.config = self.load_config()
 		log.info(f'Homicide ran an update')
 
+	# Instantly kicks someone
 	@commands.command(brief='Insta kick someone', description='Insta kick one or multiple people as an administrator by tagging them.', usage='@bad-person')
 	@commands.has_role('admin')
 	async def murder(self, ctx: commands.Context, *users: discord.Member) -> None:  # murder now supports multiple arguments
@@ -127,12 +141,14 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 		asyncio.gather(*tasks)
 
+	# Instantly kick yourself
 	@commands.command(brief='Temp ban yourself', description='Temp ban yourself. To save face one might commit the ritual of seppuku', usage='')
 	async def suicide(self, ctx) -> None:
 		log.debug('SUICIDE: {ctx.author.name} Has committed suicide')
 		await ctx.send(f"Dearly beloved\nWe are gathered here today to celebrate the passing of the great samurai: {ctx.author.name}\nMay his loyalty be something we could all live up to!\nお前はもう死んでいる")
 		await self.homicide(ctx, ctx.author)
 
+	# Call a vote to kick someone
 	@commands.command(brief='Vote to tempban someone.', description='Vote to tempban someone or multiple people by tagging them.', usage='@bad-person \ @bad-role')
 	async def lynch(self, ctx: commands.Context) -> None:  # and if murder does then so shall lynch
 		users = [role.members for role in ctx.message.role_mentions]
@@ -152,6 +168,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
 			asyncio.gather(*tasks)
 
+	# Call a vote to mute someone
 	@commands.command(brief='Vote to mute someone for a timeout', description='Vote to mute someone for a timeout.', usage='@loud-person')
 	async def silence(self, ctx: commands.Context, *users: discord.Member) -> None:
 		user = users[0]
