@@ -1,0 +1,14 @@
+{
+	"active_extensions": [
+        "packages.quote",
+        "packages.replies",
+        "packages.homicide",
+        "packages.die",
+        "packages.vcPing",
+        "packages.misc",
+        "packages.steam",
+        "packages.boolean"
+
+	],
+	"unactive_extensions": []
+}

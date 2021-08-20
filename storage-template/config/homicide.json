@@ -1,7 +1,7 @@
 {
-    "lynch_votes": 0,
-    "mute_timeout": 0,
-    "mute_votes": 0,
-    "server_timeout": 0,
-    "vote_timer": 0
+    "lynch_votes": 2,
+    "mute_timeout": 30,
+    "mute_votes": 2,
+    "server_timeout": 30,
+    "vote_timer": 20
 }
