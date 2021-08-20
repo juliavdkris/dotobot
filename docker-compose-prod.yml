@@ -4,14 +4,19 @@ services:
 
   dotobot:
     image: ghcr.io/juliavdkris/dotobot
-    build: .
     volumes:
-      - ./src:/root/app
       - storage:/root/storage
     environment:
       - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
       - PREFIX=${PREFIX}
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 30
 
 
 # Weird volume fuckery. It works.
