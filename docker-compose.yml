@@ -7,18 +7,8 @@ services:
     build: .
     volumes:
       - ./src:/root/app
-      - storage:/root/storage
+      - ./storage:/usr/src/app/storage-override
     environment:
       - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
       - PREFIX=${PREFIX}
-
-
-# Weird volume fuckery. It works.
-volumes:
-  storage:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: 'storage'

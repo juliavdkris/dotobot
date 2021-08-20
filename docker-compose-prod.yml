@@ -5,7 +5,7 @@ services:
   dotobot:
     image: ghcr.io/juliavdkris/dotobot
     volumes:
-      - storage:/root/storage
+      - ./storage:/usr/src/app/storage-override
     environment:
       - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
@@ -17,13 +17,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
     command: --interval 30
-
-
-# Weird volume fuckery. It works.
-volumes:
-  storage:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: 'storage'
