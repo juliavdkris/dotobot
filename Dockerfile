@@ -10,9 +10,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ src/
+COPY startup.sh startup.sh
+# RUN chmod +x startup.sh
 
 # Copy initial config files
 COPY storage-template/ ./storage
 
 
-CMD ["python", "src/main.py"]
+CMD ["./startup.sh"]

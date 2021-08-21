@@ -4,11 +4,16 @@ services:
 
   dotobot:
     image: ghcr.io/juliavdkris/dotobot
-    build: .
     volumes:
-      - ./src:/root/app
       - ./storage:/usr/src/app/storage-override
     environment:
       - TOKEN=${TOKEN}
       - DISCORD_INVITE=${DISCORD_INVITE}
       - PREFIX=${PREFIX}
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 30
