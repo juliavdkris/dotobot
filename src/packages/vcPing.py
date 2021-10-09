@@ -36,6 +36,9 @@ class VoicePing(commands.Cog):
 		for role_name in roles:
 			if role_name.replace(vc_suffix,'') not in vc_channels and vc_suffix in role_name:
 				await roles[role_name].delete(reason=f'Role {role_name} out of date and deleted')
+		for role in guild.roles:
+			if len(role.members) == 0 and role.name.endswith(vc_suffix):
+				await role.delete(reason = f'Role {role.name} has no current users and was cleaned up')
 
 	# only vc_channels have a bitrate attribute
 	def is_vc(self, channel: discord.abc.GuildChannel) -> bool:
