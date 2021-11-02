@@ -1,4 +1,4 @@
-discord-py
+py-cord
 python-dotenv
 pynacl
 discord-pretty-help
