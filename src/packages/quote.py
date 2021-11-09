@@ -193,7 +193,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 		quotes, search_result = self.load_quotes(str(ctx.guild.id)), []
 		search_request = args.split()[0].lower() if args.split()[0].lower() in ['quote', 'author'] else None
 		log.debug(f'Searching with parameters: {args}')
-		
+
 		if search_request:
 			log.debug(f'Searching through {search_request}s')
 			search_key = ' '.join(args.split()[1:]).lower()
@@ -220,7 +220,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 	async def last(self, ctx: commands.Context, arg: int = 10):
 		quotes = self.load_quotes(str(ctx.guild.id))
 		quotes = sorted(list(quotes.values()), key=lambda i: i['id'])
-		
+
 		try:
 			arg = int(arg)
 		except:
@@ -232,7 +232,7 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 	@q.command(brief='Quote database statistics', description='Quote database statistics or ask for data on a specific quote', usage='[quote id]')
 	async def stats(self, ctx: commands.Context, arg=None) -> None:
 		quotes = self.load_quotes(str(ctx.guild.id))
-		
+
 		if arg == None:
 			await ctx.send(f'Displaying database wide statistics\nAmount of quotes: {len(quotes)}\nEmpty quotes: `{", ".join([str(number) for number in range(0,max(map(lambda x: int(x), quotes.keys()))) if str(number) not in quotes])}`')
 			return

@@ -123,7 +123,7 @@ class Replies(commands.Cog, description='Module that replies to you in chat'):
 					log.info(f'Replied with 420 to "{match.group(1)}"')
 			except:
 				pass
-			
+
 			# Check for 69
 			try:
 				REGEX = r'(?:^|[\[ -@]|[\[-`]|[{-~]])(' + '|'.join(self.config['funny_items']) + r')(?:$|[\[ -@]|[\[-`]|[{-~]])'  # Just match anything not a letter to be honest
