@@ -18,7 +18,7 @@ color = discord.Color.from_rgb(255, 0, 0)
 def developerOnly():
 	def predicate(ctx):
 		return ctx.author.id in [355730172286205954, 228518187778572288, 282961927657750528]  # TODO not hardcoded
-	
+
 	return commands.check(predicate)
 
 # Setup extension
@@ -71,11 +71,11 @@ class System(commands.Cog, name='System', description='Internal control function
 				except Exception as err:
 					log.warning(err)
 					await ctx.send(f'`{ext}` could not be activated')
-			
+
 			await ctx.send('All extensions have been started')
 
 		# Start each given extension
-		else:	
+		else:
 			for ext in ['packages.' + arg for arg in args]:
 				try:
 					self.bot.load_extension(ext)
@@ -92,7 +92,7 @@ class System(commands.Cog, name='System', description='Internal control function
 				except Exception as err:
 					log.warning(err)
 					await ctx.send(f'`{ext}` could not be activated')
-						
+
 	# Stops specific or all extensions
 	@developerOnly()
 	@commands.command(brief='Stop specific or all extensions', description='Stop specific or all extensions', usage='!stop (extensions)')
@@ -105,9 +105,9 @@ class System(commands.Cog, name='System', description='Internal control function
 					await ctx.send('I wouldn\'t stop `packages.system` if I were you')
 				else:
 					self.bot.unload_extension(ext)
-			
+
 			await ctx.send('Most extensions have been stopped')
-		
+
 		# Stop each given extension
 		else:
 			for arg in args:
@@ -120,7 +120,7 @@ class System(commands.Cog, name='System', description='Internal control function
 
 				else:
 					await ctx.send(f'Extension `{ext}` not present in active extensions')
-	
+
 	# Restarts specific or all extensions
 	@developerOnly()
 	@commands.command(aliases=['reload'], brief='Restart all or specific extensions', description='Restart all or specific extensions. Extensions need to be active', usage='!restart (extensions)')
@@ -139,7 +139,7 @@ class System(commands.Cog, name='System', description='Internal control function
 				if (ext := 'packages.' + arg) in self.bot.extensions.keys():
 					self.bot.reload_extension(ext)
 					await ctx.send(f'Extension `{ext}` has been reloaded')
-					
+
 				else:
 					await ctx.send(f'Extension `{ext}` wasn\'t active!')
 
@@ -152,10 +152,10 @@ class System(commands.Cog, name='System', description='Internal control function
 		if not args or args[0] == 'all':
 			for cog in self.bot.cogs.values():
 				if hasattr(cog, 'update'):
-					await cog.update()	
-	
+					await cog.update()
+
 			await ctx.send('Everything has been updated')
-		
+
 		# Run an update for each given cog
 		else:
 			for arg in args:
@@ -163,6 +163,6 @@ class System(commands.Cog, name='System', description='Internal control function
 					cog = self.bot.get_cog(arg)
 					if hasattr(cog, 'update'):
 						await cog.update()
-				
+
 				else:
 					await ctx.send(f'Extension `{arg}` wasn\'t active!')

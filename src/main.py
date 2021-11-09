@@ -26,7 +26,7 @@ log.basicConfig(
 # Hide info logs that the discord module sents
 log.getLogger('discord').setLevel('WARNING')
 
-# Logs command calls 
+# Logs command calls
 @bot.before_invoke
 async def logging(ctx: commands.Context):
 	if not ctx.invoked_subcommand:
@@ -50,5 +50,5 @@ if __name__ == '__main__':
 
 		except Exception as err:
 			log.warning(err)
-	
+
 	bot.run(getenv('TOKEN'))

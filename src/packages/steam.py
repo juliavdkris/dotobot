@@ -110,11 +110,11 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
                 if steam_id != None:
                     break
                 await ctx.send('That was not a valid url... Please try again or type `go away`')
-            
+
             self.users[str(ctx.author.id)] = { 'steam_id': steam_id }
             self.dump_config()
             log.info('User sucessfully added to the SteamID database')
-                
+
         # Fetch caller inventory
         result = self.steam_api.call(
             'IPlayerService.GetOwnedGames',
@@ -167,5 +167,5 @@ class Steam(commands.Cog, name='Steam', description='Interface with steam'):
 
                 if target_game['match']['appid'] in [game['appid'] for game in games] and discord_id in members:
                     message += f'<@!{discord_id}>'
-            
+
             await ctx.send(message)

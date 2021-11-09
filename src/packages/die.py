@@ -38,6 +38,6 @@ class Die(commands.Cog, name='RNG', description='Simulate dice throws'):
 			'+-------+\n| o   o |\n|       |\n| o   o |\n+-------+',
 			'+-------+\n| o   o |\n|   o   |\n| o   o |\n+-------+',
 			'+-------+\n| o   o |\n| o   o |\n| o   o |\n+-------+'
-		]	
+		]
 		output = f'```\n{random.choice(d6)}```'
 		await ctx.send(output)
