@@ -116,6 +116,14 @@ class Quotes(commands.Cog, name='Quote', description='Quote your friends out of 
 			log.info(f'User {ctx.author.name} has passed an invalid quote subcommand: "{ctx.message.content}"')
 			await self.quote(ctx, ctx.message.content)
 
+
+	@q.command(description='Return a random Koen quote')
+	async def koen(self, ctx: commands.Context):
+		quotes = self.load_quotes(ctx.guild.id)
+		koen_quotes = [q for q in quotes.values() if 'koen' in q['author'].lower()]
+		await ctx.send(f'Koen says: "{choice(koen_quotes)["quote"]}"')
+
+
 	# Adds a quote to the database
 	@q.command(brief='Add a quote', description='Add a quote to the database', usage='"[quote]" - [author]')
 	async def add(self, ctx: commands.Context, *, args=None) -> None:
