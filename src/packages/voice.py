@@ -1,6 +1,5 @@
 import logging
 from asyncio import sleep
-from os import getenv
 from os.path import basename
 from random import randint
 
@@ -31,19 +30,23 @@ def teardown(bot: commands.Bot) -> None:
 class Voice(commands.Cog, description='Play music in voice'):
 	def __init__(self, bot):
 		self.bot = bot
-		self.path = getenv('FFMPEG')
 
 	# Plays a sound in voice
 	async def voice_helper(self, vc, file):
-		vc = await vc.connect()
-		vc.play(discord.FFmpegPCMAudio(executable=self.path, source='storage/static/sounds/' + file))
+		try:
+			vc = await vc.connect()
+		except:
+			await [client for client in self.bot.voice_clients if client.guild == vc.guild][0].disconnect()
+			vc = await vc.connect()
+
+		vc.play(discord.FFmpegPCMAudio(source='storage/static/sounds/' + file))
 		while vc.is_playing():
 			await sleep(2)
 		await vc.disconnect()
 
 	# Plays crabrave in voice
 	async def crabrave(self, text_channel, vc, arg=None):
-		path = 'crab_rave2.mp3' if randint(0, 1) == 0 else 'crab_rave.mp3'
+		path = 'crab_rave.mp3'
 		await text_channel.send(f"{arg} IS GONE :crab: :crab: :crab: :crab: :crab: :crab: :crab:")  # crab rave gif / shortened version of crab rave
 		await text_channel.send('https://tenor.com/view/crab-safe-dance-gif-13211112')
 		await self.voice_helper(vc, path)
