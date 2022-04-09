@@ -1,5 +1,8 @@
 FROM python:3
 
+RUN apt-get -y update
+RUN apt-get install -y ffmpeg
+
 ENV PYTHONUNBUFFERED=1
 RUN pip install --upgrade pip
 
