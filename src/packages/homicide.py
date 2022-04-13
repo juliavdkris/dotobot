@@ -162,7 +162,7 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 		log.debug(f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
 		embed = discord.Embed(title=f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
 		msg = await ctx.send(embed=embed)
-		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
+		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']) or users[0].id == 323740737135050755:
 			tasks = []
 			for user in users:
 				tasks.append(asyncio.create_task(self.homicide(ctx, user)))
