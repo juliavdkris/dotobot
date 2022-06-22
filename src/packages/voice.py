@@ -68,6 +68,8 @@ class Voice(commands.Cog, description='Play music in voice'):
 			await self.voice_helper(msg.author.voice.channel, 'zoutelande.mp3')
 		elif 'tequila' in content:
 			await self.voice_helper(msg.author.voice.channel, 'tequila.mp3')
+		elif 'sigma' in content:
+			await self.voice_helper(msg.author.voice.channel, 'sigma.mp3')
 
 	# Plays crabrave in voice
 	@commands.command(brief='Stuff is gone', description='Stuff is gone.', usage='my social life')
