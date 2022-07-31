@@ -4,7 +4,8 @@ from os.path import basename
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import CheckFailure, ExtensionAlreadyLoaded, ExtensionNotFound
+from discord.ext.commands.errors import CheckFailure
+from discord import ExtensionNotFound, ExtensionAlreadyLoaded
 from pretty_help import PrettyHelp
 
 # -------------------------> Globals

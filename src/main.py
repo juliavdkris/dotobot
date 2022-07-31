@@ -3,7 +3,7 @@ from os import getenv, listdir
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import ExtensionAlreadyLoaded
+from discord import ExtensionAlreadyLoaded
 from dotenv import load_dotenv
 
 # -------------------------> Globals
