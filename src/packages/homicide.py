@@ -102,17 +102,17 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 				await self.bot.wait_for('reaction_add', check=lambda reaction, user: reaction.emoji == '✅' and msg.id == reaction.message.id, timeout=self.config['vote_timer'])
 				if await self.reaction_listener_helper(msg, caller_id, needed_votes):
 					embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in yay ✅')
-					embed.set_footer(text=old_embed.footer)
+					embed.set_footer(text=old_embed.footer.text)
 					await msg.edit(embed=embed)
 					return True
 		except:
 			if await self.reaction_listener_helper(msg, caller_id, needed_votes):
 				embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in yay ✅')
-				embed.set_footer(text=old_embed.footer)
+				embed.set_footer(text=old_embed.footer.text)
 				await msg.edit(embed=embed)
 				return True
 			embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in nay ⛔')
-			embed.set_footer(text=old_embed.footer)
+			embed.set_footer(text=old_embed.footer.text)
 			await msg.edit(embed=embed)
 			return False
 
