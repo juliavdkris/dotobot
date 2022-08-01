@@ -101,13 +101,19 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			while True:
 				await self.bot.wait_for('reaction_add', check=lambda reaction, user: reaction.emoji == '✅' and msg.id == reaction.message.id, timeout=self.config['vote_timer'])
 				if await self.reaction_listener_helper(msg, caller_id, needed_votes):
-					await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in yay ✅'))
+					embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in yay ✅')
+					embed.set_footer(text=old_embed.footer)
+					await msg.edit(embed=embed)
 					return True
 		except:
 			if await self.reaction_listener_helper(msg, caller_id, needed_votes):
-				await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in yay ✅'))
+				embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in yay ✅')
+				embed.set_footer(text=old_embed.footer)
+				await msg.edit(embed=embed)
 				return True
-			await msg.edit(embed=discord.Embed(title=old_embed.title, footer=old_embed.footer, colour=old_embed.colour, description='Vote resulted in nay ⛔'))
+			embed = discord.Embed(title=old_embed.title, colour=old_embed.colour, description='Vote resulted in nay ⛔')
+			embed.set_footer(text=old_embed.footer)
+			await msg.edit(embed=embed)
 			return False
 
 	# Reassigns roles to newly joined members
@@ -160,7 +166,8 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			return
 
 		log.debug(f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}")
-		embed = discord.Embed(title=f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
+		embed = discord.Embed(title=f"{ctx.author.name} has called a lynch on: {' & '.join([member.name for member in users])}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?')
+		embed.set_footer(text=f"Powered by {self.bot.user.name}")
 		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['lynch_votes']):
 			tasks = []
@@ -172,7 +179,8 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 	@commands.command(brief='Vote to mute someone for a timeout', description='Vote to mute someone for a timeout.', usage='@loud-person')
 	async def silence(self, ctx: commands.Context, *users: discord.Member) -> None:
 		user = users[0]
-		embed = discord.Embed(title=f"people really wanna shut up {user.name}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?', footer=f"Powered by {self.bot.user.name}")
+		embed = discord.Embed(title=f"people really wanna shut up {user.name}", colour=Colour.from_rgb(255,0,0), description='Yay or nae?')
+		embed.set_footer(text=f"Powered by {self.bot.user.name}")
 		msg = await ctx.send(embed=embed)
 		if await self.reaction_listener(ctx, msg, ctx.author.id, self.config['mute_votes']):
 			log.info(f"{ctx.author.name} has called a lynch on: {user.name}, which passed")
