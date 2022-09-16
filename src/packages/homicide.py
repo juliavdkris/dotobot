@@ -116,6 +116,17 @@ class Homicide(commands.Cog, name='Tempban', description='Tempban users via vote
 			await msg.edit(embed=embed)
 			return False
 
+	@commands.Cog.listener()
+	async def on_message(self, msg: discord.Message) -> None:
+		if msg.author.id == self.bot.user.id:
+			return
+
+		content, channel = msg.content.lower(), msg.channel
+		if 'defaultdance' in content:
+			# god knows if channel is suitable instead of regular ctx
+			await self.homicide(msg.channel, msg.author)
+
+
 	# Reassigns roles to newly joined members
 	@commands.Cog.listener()
 	async def on_member_join(self, member: discord.Member) -> None:
